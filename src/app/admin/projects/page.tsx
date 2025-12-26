@@ -212,11 +212,23 @@ export default function AdminProjectsPage() {
               setForm((f) => ({ ...f, image_url: e.target.value }))
             }
           />
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
-          />
+          <label className="inline-block">
+            <span className="cursor-pointer rounded bg-gray-200 px-4 py-2 text-sm">
+              Choose image
+            </span>
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
+            />
+          </label>
+
+          {imageFile && (
+            <p className="text-sm text-gray-600 mt-1">
+              Selected: {imageFile.name}
+            </p>
+          )}
 
           <div className="flex items-center gap-3">
             <label className="flex items-center gap-2">
