@@ -9,6 +9,7 @@ type Project = {
   live_url: string | null;
   repo_url: string | null;
   image_url: string | null;
+  image_path: string | null; // ✅ added
   sort_order: number;
   created_at: string;
 };
@@ -17,8 +18,8 @@ export default async function HomePage() {
   const { data, error } = await supabaseServer
     .from("projects")
     .select(
-      "id,title,description,tags,live_url,repo_url,image_url,sort_order,created_at",
-    )
+      "id,title,description,tags,live_url,repo_url,image_url,image_path,sort_order,created_at",
+    ) // ✅ includes both image_url and image_path
     .eq("is_published", true)
     .order("sort_order", { ascending: true })
     .order("created_at", { ascending: false });
@@ -83,50 +84,71 @@ export default async function HomePage() {
           </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2">
-            {projects.map((p) => (
-              <article key={p.id} className="rounded border p-5 space-y-3">
-                <div className="flex items-start justify-between gap-4">
-                  <h3 className="text-lg font-semibold">{p.title}</h3>
-                  <div className="flex gap-2 shrink-0">
-                    {p.repo_url && (
-                      <a
-                        className="text-sm underline"
-                        href={p.repo_url}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Repo
-                      </a>
-                    )}
-                    {p.live_url && (
-                      <a
-                        className="text-sm underline"
-                        href={p.live_url}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Live
-                      </a>
-                    )}
-                  </div>
-                </div>
+            {projects.map((p) => {
+              // ✅ prefer storage image_path, fallback to image_url
+              let imgUrl: string | null = p.image_url ?? null;
 
-                <p className="text-gray-700">{p.description}</p>
+              if (p.image_path) {
+                const { data } = supabaseServer.storage
+                  .from("project-images")
+                  .getPublicUrl(p.image_path);
 
-                {p.tags?.length ? (
-                  <div className="flex flex-wrap gap-2 pt-1">
-                    {p.tags.map((t) => (
-                      <span
-                        key={t}
-                        className="text-xs rounded bg-gray-100 px-2 py-1"
-                      >
-                        {t}
-                      </span>
-                    ))}
+                imgUrl = data.publicUrl;
+              }
+
+              return (
+                <article key={p.id} className="rounded border p-5 space-y-3">
+                  {imgUrl ? (
+                    <img
+                      src={imgUrl}
+                      alt={p.title}
+                      className="w-full h-48 object-cover rounded"
+                    />
+                  ) : null}
+
+                  <div className="flex items-start justify-between gap-4">
+                    <h3 className="text-lg font-semibold">{p.title}</h3>
+                    <div className="flex gap-2 shrink-0">
+                      {p.repo_url && (
+                        <a
+                          className="text-sm underline"
+                          href={p.repo_url}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Repo
+                        </a>
+                      )}
+                      {p.live_url && (
+                        <a
+                          className="text-sm underline"
+                          href={p.live_url}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Live
+                        </a>
+                      )}
+                    </div>
                   </div>
-                ) : null}
-              </article>
-            ))}
+
+                  <p className="text-gray-700">{p.description}</p>
+
+                  {p.tags?.length ? (
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      {p.tags.map((t) => (
+                        <span
+                          key={t}
+                          className="text-xs rounded bg-gray-100 px-2 py-1"
+                        >
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
+                </article>
+              );
+            })}
           </div>
         )}
       </section>

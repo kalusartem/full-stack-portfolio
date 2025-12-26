@@ -32,6 +32,7 @@ export default function AdminProjectsPage() {
   const [form, setForm] = useState({ ...emptyForm });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [msg, setMsg] = useState<string>("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   const tagsArray = useMemo(() => {
     return form.tags
@@ -65,6 +66,28 @@ export default function AdminProjectsPage() {
   };
 
   const save = async () => {
+    let uploadedPath: string | null = null;
+
+    if (imageFile) {
+      const ext = imageFile.name.split(".").pop();
+      const filePath = `${crypto.randomUUID()}.${ext}`;
+
+      const { data, error } = await supabase.storage
+        .from("project-images")
+        .upload(filePath, imageFile, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: imageFile.type,
+        });
+
+      if (error) {
+        setMsg(`Image upload error: ${error.message}`);
+        return;
+      }
+
+      uploadedPath = data.path;
+    }
+
     setMsg("");
 
     const payload = {
@@ -76,7 +99,10 @@ export default function AdminProjectsPage() {
       image_url: form.image_url.trim() || null,
       is_published: form.is_published,
       sort_order: Number(form.sort_order) || 0,
+      image_path: "",
     };
+
+    if (uploadedPath) payload.image_path = uploadedPath;
 
     if (!payload.title || !payload.description) {
       setMsg("Title and description are required.");
@@ -92,6 +118,7 @@ export default function AdminProjectsPage() {
       return;
     }
 
+    setImageFile(null);
     reset();
     await load();
     setMsg("Saved ✅");
@@ -184,6 +211,11 @@ export default function AdminProjectsPage() {
             onChange={(e) =>
               setForm((f) => ({ ...f, image_url: e.target.value }))
             }
+          />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
           />
 
           <div className="flex items-center gap-3">
