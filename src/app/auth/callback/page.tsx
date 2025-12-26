@@ -9,7 +9,9 @@ export default function AuthCallbackPage() {
 
   useEffect(() => {
     const run = async () => {
+      debugger;
       const { data } = await supabase.auth.getSession();
+      alert("Callback session: " + JSON.stringify(data.session));
       console.log("Callback session:", data.session);
 
       if (!data.session) {
