@@ -37,7 +37,7 @@ export default async function HomePage() {
         <div className="flex gap-3">
           <a
             className="rounded bg-gray-900 text-white px-4 py-2"
-            href="https://github.com/"
+            href="https://github.com/kalusartem/Full-Stack-Portfolio-2"
             target="_blank"
             rel="noreferrer"
           >
@@ -45,7 +45,7 @@ export default async function HomePage() {
           </a>
           <a
             className="rounded bg-gray-200 px-4 py-2"
-            href="https://www.linkedin.com/"
+            href="https://www.linkedin.com/in/artemkalus/"
             target="_blank"
             rel="noreferrer"
           >
