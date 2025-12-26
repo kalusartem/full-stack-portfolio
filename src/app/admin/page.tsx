@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase-browser";
+import Link from "next/link";
 
 export default function AdminPage() {
   const router = useRouter();
@@ -73,6 +74,12 @@ export default function AdminPage() {
     <main className="p-8">
       <h1 className="text-3xl font-bold">Admin</h1>
       <p className="mt-3 font-mono text-sm">{status}</p>
+      <Link
+        href="/admin/projects"
+        className="inline-block rounded bg-gray-900 text-white px-4 py-2"
+      >
+        Manage Projects
+      </Link>
     </main>
   );
 }
