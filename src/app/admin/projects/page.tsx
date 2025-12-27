@@ -19,7 +19,7 @@ type Project = {
 
 type ImageState = {
   file?: File; // when user selects a new image
-  path?: string; // Supabase Storage path (existing)
+  path?: string | null; // Supabase Storage path (existing)
   url?: string; // public URL for preview
   name?: string; // display name (derived)
 };
@@ -110,10 +110,21 @@ export default function AdminProjectsPage() {
       return;
     }
 
+    if (file?.type && payload.image_path !== imageFile?.path) {
+      await deleteImage(imageFile?.path || "");
+    }
+
     setImage(null);
     reset();
     await load();
     setMsg("Saved ✅");
+  };
+
+  const deleteImage = async (image_path: string) => {
+    const { error: imgErr } = await supabase.storage
+      .from("project-images")
+      .remove([image_path]);
+    if (imgErr) return setMsg(`Image delete error: ${imgErr.message}`);
   };
 
   const saveFile = async () => {
