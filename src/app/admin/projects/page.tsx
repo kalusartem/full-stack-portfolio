@@ -77,7 +77,6 @@ export default function AdminProjectsPage() {
   };
 
   const save = async () => {
-    debugger;
     const uploadedPath = await saveFile();
     const file = imageFile?.file;
 
@@ -164,7 +163,6 @@ export default function AdminProjectsPage() {
       is_published: p.is_published,
       sort_order: p.sort_order ?? 0,
     });
-    debugger;
     if (p.image_name) {
       setImage({ name: p.image_name, path: p.image_path });
     }
@@ -258,7 +256,7 @@ export default function AdminProjectsPage() {
               onChange={(e) => {
                 const newImageFile = { ...imageFile };
                 newImageFile.file = e.target.files?.[0] ?? undefined;
-                debugger;
+                newImageFile.name = e.target.files?.[0]?.name;
                 setImage(newImageFile);
               }}
             />
