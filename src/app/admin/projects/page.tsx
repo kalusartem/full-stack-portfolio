@@ -172,7 +172,7 @@ export default function AdminProjectsPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const del = async (id: string) => {
+  const del = async (id: string, image_path: string | null) => {
     if (!confirm("Delete this project?")) return;
     setMsg("");
 
@@ -180,6 +180,9 @@ export default function AdminProjectsPage() {
     if (error) {
       setMsg(`Delete error: ${error.message}`);
       return;
+    }
+    if (image_path) {
+      await deleteImage(image_path || "");
     }
     await load();
     setMsg("Deleted ✅");
@@ -349,7 +352,7 @@ export default function AdminProjectsPage() {
                     </button>
                     <button
                       className="rounded bg-red-600 text-white px-3 py-1"
-                      onClick={() => del(p.id)}
+                      onClick={() => del(p.id, p.image_path)}
                     >
                       Delete
                     </button>
