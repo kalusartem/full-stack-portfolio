@@ -24,6 +24,8 @@ export default async function HomePage() {
     .order("sort_order", { ascending: true })
     .order("created_at", { ascending: false });
 
+  console.log("data", data);
+
   const projects = (data ?? []) as Project[];
 
   return (

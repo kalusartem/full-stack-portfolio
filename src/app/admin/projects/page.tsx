@@ -11,8 +11,17 @@ type Project = {
   live_url: string | null;
   repo_url: string | null;
   image_url: string | null;
+  image_name: string | null;
+  image_path: string | null;
   is_published: boolean;
   sort_order: number;
+};
+
+type ImageState = {
+  file?: File; // when user selects a new image
+  path?: string; // Supabase Storage path (existing)
+  url?: string; // public URL for preview
+  name?: string; // display name (derived)
 };
 
 const emptyForm = {
@@ -22,6 +31,7 @@ const emptyForm = {
   live_url: "",
   repo_url: "",
   image_url: "",
+  image_name: "",
   is_published: true,
   sort_order: 0,
 };
@@ -32,7 +42,7 @@ export default function AdminProjectsPage() {
   const [form, setForm] = useState({ ...emptyForm });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [msg, setMsg] = useState<string>("");
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageFile, setImage] = useState<ImageState | null>(null);
 
   const tagsArray = useMemo(() => {
     return form.tags
@@ -57,6 +67,7 @@ export default function AdminProjectsPage() {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
   }, []);
 
@@ -66,27 +77,9 @@ export default function AdminProjectsPage() {
   };
 
   const save = async () => {
-    let uploadedPath: string | null = null;
-
-    if (imageFile) {
-      const ext = imageFile.name.split(".").pop();
-      const filePath = `${crypto.randomUUID()}.${ext}`;
-
-      const { data, error } = await supabase.storage
-        .from("project-images")
-        .upload(filePath, imageFile, {
-          cacheControl: "3600",
-          upsert: false,
-          contentType: imageFile.type,
-        });
-
-      if (error) {
-        setMsg(`Image upload error: ${error.message}`);
-        return;
-      }
-
-      uploadedPath = data.path;
-    }
+    debugger;
+    const uploadedPath = await saveFile();
+    const file = imageFile?.file;
 
     setMsg("");
 
@@ -99,10 +92,9 @@ export default function AdminProjectsPage() {
       image_url: form.image_url.trim() || null,
       is_published: form.is_published,
       sort_order: Number(form.sort_order) || 0,
-      image_path: "",
+      image_name: file?.name,
+      image_path: file?.type ? uploadedPath : imageFile?.path,
     };
-
-    if (uploadedPath) payload.image_path = uploadedPath;
 
     if (!payload.title || !payload.description) {
       setMsg("Title and description are required.");
@@ -118,10 +110,34 @@ export default function AdminProjectsPage() {
       return;
     }
 
-    setImageFile(null);
+    setImage(null);
     reset();
     await load();
     setMsg("Saved ✅");
+  };
+
+  const saveFile = async () => {
+    if (imageFile?.file) {
+      const file = imageFile.file;
+      const ext = file.name.split(".").pop();
+      const filePath = `${crypto.randomUUID()}.${ext}`;
+
+      const { data, error } = await supabase.storage
+        .from("project-images")
+        .upload(filePath, file, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: file.type,
+        });
+
+      if (error) {
+        setMsg(`Image upload error: ${error.message}`);
+        return;
+      }
+
+      return data.path;
+    }
+    return null;
   };
 
   const edit = (p: Project) => {
@@ -133,9 +149,14 @@ export default function AdminProjectsPage() {
       live_url: p.live_url ?? "",
       repo_url: p.repo_url ?? "",
       image_url: p.image_url ?? "",
+      image_name: p.image_name ?? "",
       is_published: p.is_published,
       sort_order: p.sort_order ?? 0,
     });
+    debugger;
+    if (p.image_name) {
+      setImage({ name: p.image_name, path: p.image_path });
+    }
     setMsg("");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -220,7 +241,12 @@ export default function AdminProjectsPage() {
               type="file"
               accept="image/*"
               className="hidden"
-              onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
+              onChange={(e) => {
+                const newImageFile = { ...imageFile };
+                newImageFile.file = e.target.files?.[0] ?? undefined;
+                debugger;
+                setImage(newImageFile);
+              }}
             />
           </label>
 
