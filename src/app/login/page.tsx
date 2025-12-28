@@ -8,6 +8,7 @@ export default function LoginPage() {
       provider: "github",
       options: {
         scopes: "read:user user:email",
+        redirectTo: `${window.location.origin}/auth/callback`,
       },
     });
     if (error) alert(error.message);
@@ -29,8 +30,10 @@ export default function LoginPage() {
         <button
           className="rounded bg-blue-600 text-white px-4 py-2"
           onClick={() => signIn("google")}
+          style={{ background: "grey" }}
+          disabled
         >
-          Continue with Google
+          Continue with Google (Coming Soon)
         </button>
       </div>
     </main>
