@@ -28,9 +28,22 @@ export async function middleware(req: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (req.nextUrl.pathname.startsWith("/admin") && !user) {
+  if (!user) {
     const url = req.nextUrl.clone();
     url.pathname = "/login";
+    return NextResponse.redirect(url);
+  }
+
+  // Authorization: check admin
+  const { data: profile, error } = await supabase
+    .from("profiles")
+    .select("is_admin")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (error || !profile?.is_admin) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/"; // or "/login"
     return NextResponse.redirect(url);
   }
 

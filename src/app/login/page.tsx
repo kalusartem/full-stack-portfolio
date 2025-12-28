@@ -1,22 +1,21 @@
 "use client";
 
-import { createBrowserClient } from "@supabase/ssr";
-
-const supabase = createBrowserClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
-);
+import { supabase } from "@/lib/supabase-browser";
 
 export default function LoginPage() {
   const signIn = async (provider: "github" | "google") => {
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: provider,
+      provider,
       options: {
-        scopes: "read:user user:email",
+        scopes: provider === "github" ? "read:user user:email" : undefined,
         redirectTo: `${window.location.origin}/auth/callback`,
       },
     });
-    if (error) alert(error.message);
+
+    if (error) {
+      console.error(error);
+      // optionally show UI error
+    }
   };
 
   return (
