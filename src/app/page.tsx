@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase-server";
+export const runtime = "edge";
 
 type Project = {
   id: string;

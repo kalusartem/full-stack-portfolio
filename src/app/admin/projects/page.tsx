@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Breadcrumbs from "@/components/Breadcrumbs";
+export const runtime = "edge";
 
 type Project = {
   id: string;
