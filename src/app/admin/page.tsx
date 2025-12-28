@@ -8,6 +8,18 @@ import Link from "next/link";
 export default function AdminPage() {
   const router = useRouter();
   const [status, setStatus] = useState("Loading…");
+  const [msg, setMsg] = useState<string>("");
+
+  const logout = async () => {
+    setMsg("");
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      setMsg(`Logout error: ${error.message}`);
+      return;
+    }
+    router.push("/"); // or "/login"
+    router.refresh(); // ensures server layouts re-check auth
+  };
 
   useEffect(() => {
     const run = async () => {
@@ -72,6 +84,7 @@ export default function AdminPage() {
 
   return (
     <main className="p-8">
+      {msg}
       <h1 className="text-3xl font-bold">Admin</h1>
       <p className="mt-3 font-mono text-sm">{status}</p>
       <Link
@@ -80,6 +93,12 @@ export default function AdminPage() {
       >
         Manage Projects
       </Link>
+      <button
+        className="rounded bg-gray-200 px-4 py-2 text-sm hover:bg-gray-300"
+        onClick={logout}
+      >
+        Log out
+      </button>
     </main>
   );
 }

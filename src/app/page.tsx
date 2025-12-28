@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { supabaseServer } from "@/lib/supabase-server";
+import { createClient } from "@/lib/supabase-server";
 
 type Project = {
   id: string;
@@ -15,7 +15,8 @@ type Project = {
 };
 
 export default async function HomePage() {
-  const { data, error } = await supabaseServer
+  const supabase = await createClient();
+  const { data, error } = await supabase
     .from("projects")
     .select(
       "id,title,description,tags,live_url,repo_url,image_url,image_path,sort_order,created_at",
@@ -91,7 +92,7 @@ export default async function HomePage() {
               let imgUrl: string | null = p.image_url ?? null;
 
               if (p.image_path) {
-                const { data } = supabaseServer.storage
+                const { data } = supabase.storage
                   .from("project-images")
                   .getPublicUrl(p.image_path);
 
