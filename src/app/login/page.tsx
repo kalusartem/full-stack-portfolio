@@ -45,7 +45,10 @@ export default function LoginPage({
       <div className="flex gap-3">
         <form action={signInWithProvider}>
           <input type="hidden" name="provider" value="github" />
-          <button className="rounded bg-black text-white px-4 py-2" type="submit">
+          <button
+            className="rounded bg-black text-white px-4 py-2"
+            type="submit"
+          >
             Continue with GitHub
           </button>
         </form>
