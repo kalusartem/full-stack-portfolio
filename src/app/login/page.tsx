@@ -1,8 +1,12 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase-server";
+import { headers } from "next/headers";
 
 async function signInWithProvider(formData: FormData) {
   "use server";
+
+  const h = await headers();
+  const origin = h.get("origin");
 
   const provider = formData.get("provider") as "github" | "google" | null;
   if (!provider) redirect("/login");
@@ -14,7 +18,7 @@ async function signInWithProvider(formData: FormData) {
     provider,
     options: {
       // Route handler that exchanges the code for a session and sets cookies.
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/auth/callback`,
+      redirectTo: `${origin}/auth/callback`,
       scopes: provider === "github" ? "read:user user:email" : undefined,
     },
   });
