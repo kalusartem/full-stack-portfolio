@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { supabase } from "@/lib/supabase-browser";
 
 type Project = {
   id: string;
@@ -55,14 +54,21 @@ export default function AdminProjectsPage() {
     setLoading(true);
     setMsg("");
 
-    const { data, error } = await supabase
-      .from("projects")
-      .select("*")
-      .order("sort_order", { ascending: true })
-      .order("created_at", { ascending: false });
+    const res = await fetch("/api/admin/projects", {
+      method: "GET",
+      cache: "no-store",
+    });
 
-    if (error) setMsg(`Load error: ${error.message}`);
-    setProjects((data as Project[]) ?? []);
+    if (!res.ok) {
+      const text = await res.text();
+      setMsg(`Load error: ${text || res.statusText}`);
+      setProjects([]);
+      setLoading(false);
+      return;
+    }
+
+    const json = (await res.json()) as { projects: Project[] };
+    setProjects(json.projects ?? []);
     setLoading(false);
   };
 
@@ -100,12 +106,15 @@ export default function AdminProjectsPage() {
       return;
     }
 
-    const res = editingId
-      ? await supabase.from("projects").update(payload).eq("id", editingId)
-      : await supabase.from("projects").insert(payload);
+    const res = await fetch("/api/admin/projects", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: editingId, payload }),
+    });
 
-    if (res.error) {
-      setMsg(`Save error: ${res.error.message}`);
+    if (!res.ok) {
+      const text = await res.text();
+      setMsg(`Save error: ${text || res.statusText}`);
       return;
     }
 
@@ -120,32 +129,37 @@ export default function AdminProjectsPage() {
   };
 
   const deleteImage = async (image_path: string) => {
-    const { error: imgErr } = await supabase.storage
-      .from("project-images")
-      .remove([image_path]);
-    if (imgErr) return setMsg(`Image delete error: ${imgErr.message}`);
+    const res = await fetch("/api/admin/project-image", {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ path: image_path }),
+    });
+    if (!res.ok) {
+      const text = await res.text();
+      return setMsg(`Image delete error: ${text || res.statusText}`);
+    }
   };
 
   const saveFile = async () => {
     if (imageFile?.file) {
       const file = imageFile.file;
-      const ext = file.name.split(".").pop();
-      const filePath = `${crypto.randomUUID()}.${ext}`;
 
-      const { data, error } = await supabase.storage
-        .from("project-images")
-        .upload(filePath, file, {
-          cacheControl: "3600",
-          upsert: false,
-          contentType: file.type,
-        });
+      const fd = new FormData();
+      fd.set("file", file);
 
-      if (error) {
-        setMsg(`Image upload error: ${error.message}`);
+      const res = await fetch("/api/admin/project-image", {
+        method: "POST",
+        body: fd,
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        setMsg(`Image upload error: ${text || res.statusText}`);
         return;
       }
 
-      return data.path;
+      const json = (await res.json()) as { path: string };
+      return json.path;
     }
     return null;
   };
@@ -174,14 +188,17 @@ export default function AdminProjectsPage() {
     if (!confirm("Delete this project?")) return;
     setMsg("");
 
-    const { error } = await supabase.from("projects").delete().eq("id", id);
-    if (error) {
-      setMsg(`Delete error: ${error.message}`);
+    const url = new URL("/api/admin/projects", window.location.origin);
+    url.searchParams.set("id", id);
+    if (image_path) url.searchParams.set("image_path", image_path);
+
+    const res = await fetch(url.toString(), { method: "DELETE" });
+    if (!res.ok) {
+      const text = await res.text();
+      setMsg(`Delete error: ${text || res.statusText}`);
       return;
     }
-    if (image_path) {
-      await deleteImage(image_path || "");
-    }
+
     await load();
     setMsg("Deleted ✅");
   };
@@ -254,7 +271,7 @@ export default function AdminProjectsPage() {
               accept="image/*"
               className="hidden"
               onChange={(e) => {
-                const newImageFile = { ...imageFile };
+                const newImageFile: ImageState = { ...(imageFile ?? {}) };
                 newImageFile.file = e.target.files?.[0] ?? undefined;
                 newImageFile.name = e.target.files?.[0]?.name;
                 setImage(newImageFile);

@@ -15,7 +15,6 @@ export async function middleware(req: NextRequest) {
             .map((c) => ({ name: c.name, value: c.value }));
         },
         setAll(cookiesToSet) {
-          console.log("Setting cookies in middleware:", cookiesToSet);
           cookiesToSet.forEach(({ name, value, options }) => {
             res.cookies.set(name, value, options);
           });
@@ -51,5 +50,5 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: ["/admin/:path*", "/api/admin/:path*"],
 };
