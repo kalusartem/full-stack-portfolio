@@ -22,9 +22,7 @@ export default function AdminPage() {
   };
 
   useEffect(() => {
-    debugger;
     const run = async () => {
-      debugger;
       const { data: sessionData, error: sessionErr } =
         await supabase.auth.getSession();
 
