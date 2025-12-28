@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase-browser";
 export default function LoginPage() {
   const signIn = async (provider: "github" | "google") => {
     const { error } = await supabase.auth.signInWithOAuth({
-      provider: "github",
+      provider: provider,
       options: {
         scopes: "read:user user:email",
         redirectTo: `${window.location.origin}/auth/callback`,
