@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { applyCookies, requireAdmin } from "../_utils";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 export async function GET(req: NextRequest) {
   const gate = await requireAdmin(req);

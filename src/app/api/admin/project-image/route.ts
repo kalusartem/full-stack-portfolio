@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { applyCookies, requireAdmin } from "../_utils";
 
-export const runtime = "nodejs";
+export const runtime = "edge";
 
 export async function POST(req: NextRequest) {
   const gate = await requireAdmin(req);
@@ -54,7 +54,9 @@ export async function DELETE(req: NextRequest) {
     return applyCookies(res, cookiesToSet);
   }
 
-  const { error } = await supabase.storage.from("project-images").remove([path]);
+  const { error } = await supabase.storage
+    .from("project-images")
+    .remove([path]);
   if (error) {
     const res = NextResponse.json({ error: error.message }, { status: 400 });
     return applyCookies(res, cookiesToSet);
