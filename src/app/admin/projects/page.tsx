@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 type Project = {
   id: string;
@@ -211,6 +212,14 @@ export default function AdminProjectsPage() {
           Create, edit, reorder, publish/unpublish.
         </p>
       </header>
+
+      <Breadcrumbs
+        className="mb-4"
+        items={[
+          { label: "Admin", href: "/admin" },
+          { label: "Projects" }, // current page
+        ]}
+      />
 
       <section className="rounded border p-4 space-y-3">
         <h2 className="text-xl font-semibold">
