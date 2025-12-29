@@ -111,7 +111,7 @@ export default function AdminProjectsPage() {
     const res = await fetch("/api/admin/projects", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: editingId, payload }),
+      body: JSON.stringify(editingId ? { id: editingId, ...payload } : payload),
     });
 
     if (!res.ok) {

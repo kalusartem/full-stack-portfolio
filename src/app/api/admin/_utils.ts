@@ -3,21 +3,26 @@ import { createServerClient, type CookieOptions } from "@supabase/ssr";
 
 type CookieKV = { name: string; value: string };
 
+type CookieToSet = {
+  name: string;
+  value: string;
+  options?: CookieOptions;
+};
+
 /**
  * Creates a Supabase SSR client for Route Handlers.
  *
- * IMPORTANT: pass the returned `response` back to the caller, so any auth cookie
- * updates (refresh tokens, etc.) are persisted.
+ * IMPORTANT:
+ * - The Supabase client may request cookie updates (refresh tokens, etc.).
+ * - Route Handlers must apply these cookies to the returned NextResponse.
+ * - We collect cookies in `cookiesToSet` and apply them in `applyCookies`.
  */
 export function createRouteClient(req: NextRequest) {
-  const cookiesToSet: Array<{
-    name: string;
-    value: string;
-    options?: CookieOptions;
-  }> = [];
+  const cookiesToSet: CookieToSet[] = [];
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    // Keep your env var name as-is (publishable key / anon key)
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     {
       cookies: {
@@ -26,13 +31,7 @@ export function createRouteClient(req: NextRequest) {
             .getAll()
             .map((c) => ({ name: c.name, value: c.value }));
         },
-        setAll(
-          nextCookies: Array<{
-            name: string;
-            value: string;
-            options?: CookieOptions;
-          }>,
-        ) {
+        setAll(nextCookies: CookieToSet[]) {
           cookiesToSet.push(...nextCookies);
         },
       },
@@ -42,7 +41,55 @@ export function createRouteClient(req: NextRequest) {
   return { supabase, cookiesToSet };
 }
 
-export async function requireAdmin(req: NextRequest) {
+export function applyCookies(res: NextResponse, cookiesToSet: CookieToSet[]) {
+  cookiesToSet.forEach(({ name, value, options }) => {
+    res.cookies.set(name, value, options);
+  });
+  return res;
+}
+
+/**
+ * Helper to create a JSON response AND ensure any pending auth cookie updates are persisted.
+ */
+export function jsonWithCookies(
+  body: unknown,
+  cookiesToSet: CookieToSet[],
+  init?: ResponseInit,
+) {
+  const res = NextResponse.json(body, init);
+  return applyCookies(res, cookiesToSet);
+}
+
+type RequireAdminOk = {
+  ok: true;
+  supabase: ReturnType<typeof createRouteClient>["supabase"];
+  cookiesToSet: CookieToSet[];
+  user: NonNullable<
+    Awaited<
+      ReturnType<
+        ReturnType<typeof createRouteClient>["supabase"]["auth"]["getUser"]
+      >
+    >["data"]["user"]
+  >;
+};
+
+type RequireAdminFail = {
+  ok: false;
+  response: NextResponse;
+};
+
+/**
+ * Ensures:
+ * - user is authenticated
+ * - user is admin (profiles.is_admin === true)
+ *
+ * Returns a union:
+ * - { ok: true, supabase, cookiesToSet, user }
+ * - { ok: false, response }  // already includes cookies
+ */
+export async function requireAdmin(
+  req: NextRequest,
+): Promise<RequireAdminOk | RequireAdminFail> {
   const { supabase, cookiesToSet } = createRouteClient(req);
 
   const {
@@ -52,8 +99,10 @@ export async function requireAdmin(req: NextRequest) {
 
   if (userErr || !user) {
     return {
-      ok: false as const,
-      response: NextResponse.json({ error: "unauthorized" }, { status: 401 }),
+      ok: false,
+      response: jsonWithCookies({ error: "unauthorized" }, cookiesToSet, {
+        status: 401,
+      }),
     };
   }
 
@@ -65,20 +114,12 @@ export async function requireAdmin(req: NextRequest) {
 
   if (profileErr || !profile?.is_admin) {
     return {
-      ok: false as const,
-      response: NextResponse.json({ error: "forbidden" }, { status: 403 }),
+      ok: false,
+      response: jsonWithCookies({ error: "forbidden" }, cookiesToSet, {
+        status: 403,
+      }),
     };
   }
 
-  return { ok: true as const, supabase, cookiesToSet, user };
-}
-
-export function applyCookies(
-  res: NextResponse,
-  cookiesToSet: Array<{ name: string; value: string; options?: CookieOptions }>,
-) {
-  cookiesToSet.forEach(({ name, value, options }) => {
-    res.cookies.set(name, value, options);
-  });
-  return res;
+  return { ok: true, supabase, cookiesToSet, user };
 }
