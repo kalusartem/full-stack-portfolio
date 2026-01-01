@@ -6,13 +6,8 @@ export const runtime = "edge";
 export async function GET(request: Request) {
   const url = new URL(request.url);
 
-  const { supabase, response } = createClient(request);
-
+  const supabase = await createClient(); // ✅ await, returns client
   await supabase.auth.signOut();
 
-  // send user back to login
-  const redirectUrl = new URL("/login", url.origin);
-  return NextResponse.redirect(redirectUrl, {
-    headers: response.headers, // important: carries the cookie clears
-  });
+  return NextResponse.redirect(new URL("/login", url.origin));
 }
