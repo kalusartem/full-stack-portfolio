@@ -22,14 +22,13 @@ export default function AdminPage() {
           Manage Projects
         </Link>
 
-        <form action={signOut}>
-          <button
-            className="rounded bg-gray-200 px-4 py-2 text-sm hover:bg-gray-300"
-            type="submit"
-          >
-            Log out
-          </button>
-        </form>
+        <button
+          className="rounded bg-gray-200 px-4 py-2 text-sm hover:bg-gray-300"
+          type="submit"
+          onClick={signOut}
+        >
+          Log out
+        </button>
       </div>
     </main>
   );
