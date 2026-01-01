@@ -42,7 +42,6 @@ export default async function HomePage() {
           <a
             className="rounded bg-gray-900 text-white px-4 py-2"
             href="https://github.com/kalusartem/Full-Stack-Portfolio-2"
-            target="_blank"
             rel="noreferrer"
           >
             GitHub
@@ -50,7 +49,6 @@ export default async function HomePage() {
           <a
             className="rounded bg-gray-200 px-4 py-2"
             href="https://www.linkedin.com/in/artemkalus/"
-            target="_blank"
             rel="noreferrer"
           >
             LinkedIn
@@ -117,7 +115,6 @@ export default async function HomePage() {
                         <a
                           className="text-sm underline"
                           href={p.repo_url}
-                          target="_blank"
                           rel="noreferrer"
                         >
                           Repo
@@ -127,7 +124,6 @@ export default async function HomePage() {
                         <a
                           className="text-sm underline"
                           href={p.live_url}
-                          target="_blank"
                           rel="noreferrer"
                         >
                           Live
