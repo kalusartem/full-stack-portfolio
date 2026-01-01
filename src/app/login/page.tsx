@@ -1,73 +1,59 @@
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase-server";
-import { headers } from "next/headers";
+"use client";
 
-async function signInWithProvider(formData: FormData) {
-  "use server";
+import { useSearchParams } from "next/navigation";
+import { createClient } from "@/lib/supabase-client";
 
-  const h = await headers();
-  const origin = h.get("origin");
+export default function LoginPage() {
+  const searchParams = useSearchParams();
+  const error = searchParams.get("error");
 
-  const provider = formData.get("provider") as "github" | "google" | null;
-  if (!provider) redirect("/login");
+  const signIn = async (provider: "github" | "google") => {
+    const supabase = createClient();
 
-  const supabase = await createClient();
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+        scopes: provider === "github" ? "read:user user:email" : undefined,
+      },
+    });
 
-  // Server-side OAuth initiation: Supabase returns a URL to redirect the user to.
-  const { data, error } = await supabase.auth.signInWithOAuth({
-    provider,
-    options: {
-      // Route handler that exchanges the code for a session and sets cookies.
-      redirectTo: `${origin}/auth/callback`,
-      scopes: provider === "github" ? "read:user user:email" : undefined,
-    },
-  });
+    if (error || !data?.url) {
+      window.location.href = "/login?error=oauth";
+      return;
+    }
 
-  if (error || !data?.url) {
-    redirect("/login?error=oauth");
-  }
+    window.location.href = data.url;
+  };
 
-  redirect(data.url);
-}
-
-export default function LoginPage({
-  searchParams,
-}: {
-  searchParams?: { error?: string };
-}) {
   return (
     <main className="p-8 space-y-4">
       <h1 className="text-3xl font-bold">Sign in</h1>
       <p className="text-gray-600">Use OAuth to access the admin dashboard.</p>
 
-      {searchParams?.error ? (
+      {error ? (
         <p className="text-sm text-red-600 font-mono">
           Sign-in failed. Please try again.
         </p>
       ) : null}
 
       <div className="flex gap-3">
-        <form action={signInWithProvider}>
-          <input type="hidden" name="provider" value="github" />
-          <button
-            className="rounded bg-black text-white px-4 py-2"
-            type="submit"
-          >
-            Continue with GitHub
-          </button>
-        </form>
+        <button
+          className="rounded bg-black text-white px-4 py-2"
+          type="button"
+          onClick={() => signIn("github")}
+        >
+          Continue with GitHub
+        </button>
 
-        <form action={signInWithProvider}>
-          <input type="hidden" name="provider" value="google" />
-          <button
-            className="rounded px-4 py-2 text-white"
-            style={{ background: "grey" }}
-            type="submit"
-            disabled
-          >
-            Continue with Google (Coming Soon)
-          </button>
-        </form>
+        <button
+          className="rounded px-4 py-2 text-white"
+          style={{ background: "grey" }}
+          type="button"
+          disabled
+        >
+          Continue with Google (Coming Soon)
+        </button>
       </div>
     </main>
   );
