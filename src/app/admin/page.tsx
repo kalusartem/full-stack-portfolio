@@ -22,13 +22,12 @@ export default function AdminPage() {
           Manage Projects
         </Link>
 
-        <button
-          className="rounded bg-gray-200 px-4 py-2 text-sm hover:bg-gray-300"
-          type="button"
-          onClick={signOut}
+        <a
+          href="/auth/signout"
+          className="rounded bg-black text-white px-4 py-2"
         >
-          Log out
-        </button>
+          Sign out
+        </a>
       </div>
     </main>
   );
