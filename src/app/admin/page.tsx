@@ -24,7 +24,7 @@ export default function AdminPage() {
 
         <button
           className="rounded bg-gray-200 px-4 py-2 text-sm hover:bg-gray-300"
-          type="submit"
+          type="button"
           onClick={signOut}
         >
           Log out
