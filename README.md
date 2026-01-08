@@ -4,6 +4,8 @@ A production-style **full‑stack portfolio application** built to demonstrate s
 
 This project focuses on **end‑to‑end ownership**: authentication, authorization, data validation, secure server APIs, and maintainable architecture.
 
+https://full-stack-portfolio-2.pages.dev/
+
 ---
 
 ## Tech Stack
