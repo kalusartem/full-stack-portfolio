@@ -105,8 +105,7 @@ export default function HomeClient({
               className="mt-6 text-5xl font-semibold leading-[0.94] tracking-tight md:text-7xl"
             >
               Building polished
-              <span className="block bg-gradient-to-r from-white via-white to-white/45 bg-clip-text text-transparent">
-                {" "}
+              <span className="block bg-gradient-to-r from-white to-white/50 bg-clip-text text-transparent">
                 full-stack products with premium motion.
               </span>
             </motion.h1>
@@ -422,14 +421,13 @@ export default function HomeClient({
               pages, or UI refreshes with a more premium feel.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-4">
-              <motion.button
-                disabled // Native disabled attribute
-                whileHover={{ scale: 1 }} // Remove hover animation
-                className="rounded-2xl bg-gray-400 px-6 py-3 font-medium text-gray-700 cursor-not-allowed opacity-60"
+              <motion.a
+                href="mailto:hello@example.com"
+                whileHover={{ scale: 1.03 }}
+                className="rounded-2xl bg-white px-6 py-3 font-medium text-black"
               >
                 Email Me
-              </motion.button>
-
+              </motion.a>
               <motion.a
                 href="https://www.linkedin.com/in/artemkalus/"
                 whileHover={{ scale: 1.03 }}
