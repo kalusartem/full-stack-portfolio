@@ -421,13 +421,14 @@ export default function HomeClient({
               pages, or UI refreshes with a more premium feel.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-4">
-              <motion.a
-                href="mailto:hello@example.com"
-                whileHover={{ scale: 1.03 }}
-                className="rounded-2xl bg-white px-6 py-3 font-medium text-black"
+              <motion.button
+                disabled // Native disabled attribute
+                whileHover={{ scale: 1 }} // Remove hover animation
+                className="rounded-2xl bg-gray-400 px-6 py-3 font-medium text-gray-700 cursor-not-allowed opacity-60"
               >
                 Email Me
-              </motion.a>
+              </motion.button>
+
               <motion.a
                 href="https://www.linkedin.com/in/artemkalus/"
                 whileHover={{ scale: 1.03 }}
