@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { motion } from "framer-motion";
 import Breadcrumbs from "@/components/Breadcrumbs";
 export const runtime = "edge";
 
@@ -259,14 +258,14 @@ export default function AdminProjectsPage() {
   };
 
   return (
-    <motion.main
+    <main
       className="space-y-8"
-      variants={stagger}
-      initial="hidden"
-      animate="show"
+     
+     
+     
     >
-      <motion.section
-        variants={fadeUp}
+      <section
+       
         className="rounded-[2rem] border border-white/10 bg-white/5 p-6 backdrop-blur-xl shadow-[0_18px_60px_rgba(0,0,0,0.28)] md:p-8"
       >
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
@@ -299,11 +298,11 @@ export default function AdminProjectsPage() {
             { label: "Projects" },
           ]}
         />
-      </motion.section>
+      </section>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)]">
-        <motion.section
-          variants={fadeUp}
+        <section
+         
           className="rounded-[2rem] border border-white/10 bg-white/5 p-6 backdrop-blur-xl md:p-8"
         >
           <div className="flex items-start justify-between gap-4">
@@ -467,10 +466,10 @@ export default function AdminProjectsPage() {
 
             {msg && <StatusBanner msg={msg} />}
           </div>
-        </motion.section>
+        </section>
 
-        <motion.section
-          variants={fadeUp}
+        <section
+         
           className="rounded-[2rem] border border-white/10 bg-white/5 p-6 backdrop-blur-xl md:p-8"
         >
           <div className="flex items-center justify-between gap-4">
@@ -502,11 +501,11 @@ export default function AdminProjectsPage() {
                 No projects yet. Create your first one in the editor.
               </div>
             ) : (
-              <motion.div variants={stagger} initial="hidden" animate="show" className="space-y-4">
+              <div className="space-y-4">
                 {projects.map((p) => (
-                  <motion.div
+                  <div
                     key={p.id}
-                    variants={fadeUp}
+                   
                     className="rounded-[1.5rem] border border-white/10 bg-black/20 p-5 transition hover:border-white/20 hover:bg-white/10"
                   >
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -561,13 +560,13 @@ export default function AdminProjectsPage() {
                         </button>
                       </div>
                     </div>
-                  </motion.div>
+                  </div>
                 ))}
-              </motion.div>
+              </div>
             )}
           </div>
-        </motion.section>
+        </section>
       </div>
-    </motion.main>
+    </main>
   );
 }
