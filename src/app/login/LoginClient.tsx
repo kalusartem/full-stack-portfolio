@@ -109,7 +109,7 @@ export default function LoginClient() {
                 <button
                   type="button"
                   onClick={signIn}
-                  className="flex w-full items-center justify-center gap-3 rounded-2xl bg-white px-5 py-3.5 font-medium text-black transition duration-300 hover:-translate-y-0.5 hover:scale-[1.01] hover:shadow-[0_10px_40px_rgba(255,255,255,0.18)]"
+                  className="flex w-full cursor-pointer items-center justify-center gap-3 rounded-2xl bg-white px-5 py-3.5 font-medium text-black transition duration-300 hover:-translate-y-0.5 hover:scale-[1.01] hover:shadow-[0_10px_40px_rgba(255,255,255,0.18)]"
                 >
                   <svg
                     aria-hidden="true"
