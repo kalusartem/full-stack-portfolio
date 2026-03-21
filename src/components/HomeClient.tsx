@@ -116,7 +116,7 @@ export default function HomeClient({ projects, errorMessage }: Props) {
 
               <h1 className="mt-6 text-5xl font-semibold leading-[0.92] tracking-tight md:text-7xl">
                 I build products that
-                <span className="block bg-gradient-to-r from-white via-white to-white/50 bg-clip-text text-transparent">
+                <span className="block leading-[1.18] bg-gradient-to-r from-white via-white to-white/50 bg-clip-text text-transparent">
                   feel premium at first glance.
                 </span>
               </h1>
