@@ -85,7 +85,7 @@ export default function HomeClient({ projects, errorMessage }: Props) {
           <nav className="sticky top-4 z-30 animate-fade-in-down">
             <div className="flex items-center justify-between rounded-full border border-white/10 bg-black/30 px-5 py-3 backdrop-blur-xl">
               <div className="text-lg font-semibold tracking-wide md:text-xl">
-                Your Name
+                Artem Kalus
               </div>
 
               <div className="hidden items-center gap-8 text-sm text-white/70 md:flex">
