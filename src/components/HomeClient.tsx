@@ -81,7 +81,7 @@ export default function HomeClient({ projects, errorMessage }: Props) {
       </div>
 
       <main className="relative z-10">
-        <section className="mx-auto max-w-7xl px-6 pb-20 pt-8 md:px-10">
+        <section className="mx-auto max-w-7xl px-6 pb-20 md:px-10">
           <nav className="sticky top-4 z-30 animate-fade-in-down">
             <div className="flex items-center justify-between rounded-full border border-white/10 bg-black/30 px-5 py-3 backdrop-blur-xl">
               <div className="text-lg font-semibold tracking-wide md:text-xl">
@@ -496,7 +496,7 @@ export default function HomeClient({ projects, errorMessage }: Props) {
           </div>
         </section>
 
-        <section className="mx-auto max-w-7xl px-6 pb-28 pt-8 md:px-10">
+        <section className="mx-auto max-w-7xl px-6 pb-28 md:px-10">
           <div className="rounded-[2rem] border border-white/10 bg-white/5 p-8 text-center backdrop-blur-xl md:p-12">
             <p className="text-sm uppercase tracking-[0.25em] text-white/45">
               Ready
