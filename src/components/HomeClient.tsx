@@ -74,7 +74,7 @@ export default function HomeClient({ projects, errorMessage }: Props) {
   return (
     <div className="min-h-screen overflow-hidden bg-neutral-950 text-white selection:bg-white selection:text-black">
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-24 right-[-10%] h-[30rem] w-[30rem] rounded-full bg-fuchsia-500/15 blur-3xl animate-float-slow" />
+        <div className="absolute -top-16 right-0 h-[16rem] w-[16rem] scale-75 origin-top-right rounded-full bg-fuchsia-500/15 blur-3xl animate-float-slow md:-top-24 md:right-[-10%] md:h-[30rem] md:w-[30rem] md:scale-100" />
         <div className="absolute bottom-[-8rem] left-[-6rem] h-[28rem] w-[28rem] rounded-full bg-cyan-400/12 blur-3xl animate-float-slower" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(99,102,241,0.16),transparent_22%),radial-gradient(circle_at_bottom_left,rgba(236,72,153,0.12),transparent_24%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:72px_72px] opacity-[0.08]" />
