@@ -1,3 +1,5 @@
+export const runtime = "edge";
+
 import HomeClient from "@/components/HomeClient";
 import { createClient } from "@/lib/supabase-server";
 
