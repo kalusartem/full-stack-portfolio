@@ -87,3 +87,17 @@ a { text-decoration: none; }
 .animate-shimmer {
   animation: shimmer 3.2s ease-in-out infinite;
 }
+
+:focus-visible {
+  outline: 2px solid #a5b4fc;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
