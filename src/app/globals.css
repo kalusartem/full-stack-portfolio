@@ -34,6 +34,9 @@
   --on-primary: #000000;
   --primary-glow: rgba(255, 255, 255, 0.15);
   --accent: #a5b4fc;
+  --accent-soft: rgba(165, 180, 252, 0.12);
+  --gradient-from: #c7d2fe;
+  --gradient-to: #f0abfc;
 
   --danger: #fecaca;
   --danger-soft: rgba(239, 68, 68, 0.1);
@@ -43,6 +46,7 @@
   --success: #d1fae5;
   --success-soft: rgba(16, 185, 129, 0.15);
   --success-line: rgba(52, 211, 153, 0.3);
+  --success-solid: #34d399;
   --highlight: #fae8ff;
   --highlight-soft: rgba(217, 70, 239, 0.1);
   --highlight-line: rgba(232, 121, 249, 0.3);
@@ -88,6 +92,9 @@
   --on-primary: #ffffff;
   --primary-glow: rgba(20, 20, 60, 0.22);
   --accent: #4f46e5;
+  --accent-soft: rgba(79, 70, 229, 0.1);
+  --gradient-from: #4f46e5;
+  --gradient-to: #c026d3;
 
   --danger: #b91c1c;
   --danger-soft: rgba(239, 68, 68, 0.08);
@@ -97,6 +104,7 @@
   --success: #046a4b;
   --success-soft: rgba(16, 185, 129, 0.12);
   --success-line: rgba(5, 150, 105, 0.35);
+  --success-solid: #059669;
   --highlight: #a21caf;
   --highlight-soft: rgba(217, 70, 239, 0.1);
   --highlight-line: rgba(192, 38, 211, 0.35);
@@ -131,6 +139,7 @@
   --color-primary: var(--primary);
   --color-on-primary: var(--on-primary);
   --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
   --color-danger: var(--danger);
   --color-danger-soft: var(--danger-soft);
   --color-danger-line: var(--danger-line);
@@ -139,13 +148,14 @@
   --color-success: var(--success);
   --color-success-soft: var(--success-soft);
   --color-success-line: var(--success-line);
+  --color-success-solid: var(--success-solid);
   --color-highlight: var(--highlight);
   --color-highlight-soft: var(--highlight-soft);
   --color-highlight-line: var(--highlight-line);
   --color-blob-a: var(--blob-a);
   --color-blob-b: var(--blob-b);
-  --font-sans: Arial, Helvetica, sans-serif;
-  --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: var(--font-geist-mono), "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
 }
 
 html { scroll-behavior: smooth; }
@@ -154,7 +164,15 @@ body {
   min-height: 100vh;
   background: radial-gradient(circle at top, var(--body-glow), transparent 24%), linear-gradient(180deg, var(--bg-from) 0%, var(--bg-to) 100%);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.text-gradient {
+  background-image: linear-gradient(100deg, var(--gradient-from), var(--gradient-to));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 /* Decorative layers shared by the home, login and admin backgrounds */
