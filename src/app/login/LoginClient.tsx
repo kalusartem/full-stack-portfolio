@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import ThemeToggle from "@/components/ThemeToggle";
 import { createClient } from "@/lib/supabase-client";
 
 export default function LoginClient() {
@@ -28,29 +29,29 @@ export default function LoginClient() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-neutral-950 text-white">
+    <div className="relative min-h-screen overflow-hidden bg-background text-foreground">
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-20 right-[-8%] h-[26rem] w-[26rem] rounded-full bg-fuchsia-500/10 blur-3xl animate-float-slow" />
-        <div className="absolute bottom-[-8rem] left-[-8%] h-[24rem] w-[24rem] rounded-full bg-cyan-400/10 blur-3xl animate-float-slower" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(99,102,241,0.14),transparent_22%),radial-gradient(circle_at_bottom_left,rgba(236,72,153,0.10),transparent_24%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:72px_72px] opacity-[0.08]" />
+        <div className="absolute -top-20 right-[-8%] h-[26rem] w-[26rem] rounded-full bg-blob-a blur-3xl animate-float-slow" />
+        <div className="absolute bottom-[-8rem] left-[-8%] h-[24rem] w-[24rem] rounded-full bg-blob-b blur-3xl animate-float-slower" />
+        <div className="absolute inset-0 bg-aurora" />
+        <div className="absolute inset-0 bg-grid opacity-[0.08]" />
       </div>
 
       <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl items-center px-6 py-12 md:px-10">
         <div className="grid w-full gap-10 lg:grid-cols-[1.1fr_0.9fr]">
           <div className="hidden flex-col justify-center lg:flex">
-            <div className="inline-flex w-fit items-center rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/70 backdrop-blur-md">
+            <div className="inline-flex w-fit items-center rounded-full border border-line bg-surface px-4 py-2 text-sm text-soft backdrop-blur-md">
               Admin Access • Secure Login
             </div>
 
             <h1 className="mt-6 max-w-2xl text-5xl font-semibold leading-[0.95] tracking-tight">
               Access your
-              <span className="block bg-gradient-to-r from-white to-white/50 bg-clip-text text-transparent">
+              <span className="block bg-gradient-to-r from-foreground to-foreground/50 bg-clip-text text-transparent">
                 premium admin workspace.
               </span>
             </h1>
 
-            <p className="mt-6 max-w-xl text-lg leading-8 text-white/65">
+            <p className="mt-6 max-w-xl text-lg leading-8 text-muted">
               Sign in to manage projects, update portfolio content, and control
               your dashboard.
             </p>
@@ -63,10 +64,10 @@ export default function LoginClient() {
               ].map(([title, text]) => (
                 <div
                   key={title}
-                  className="rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-xl"
+                  className="rounded-2xl border border-line bg-surface p-4 backdrop-blur-xl"
                 >
-                  <div className="text-sm font-medium text-white">{title}</div>
-                  <div className="mt-1 text-xs leading-5 text-white/55">
+                  <div className="text-sm font-medium text-foreground">{title}</div>
+                  <div className="mt-1 text-xs leading-5 text-subtle">
                     {text}
                   </div>
                 </div>
@@ -75,18 +76,21 @@ export default function LoginClient() {
           </div>
 
           <div className="relative mx-auto w-full max-w-md">
-            <div className="absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-white/10 via-fuchsia-400/10 to-cyan-400/10 blur-2xl animate-tilt-glow" />
+            <div className="absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-foreground/10 via-blob-a to-blob-b blur-2xl animate-tilt-glow" />
 
-            <div className="relative rounded-[2rem] border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur-xl md:p-10">
+            <div className="relative rounded-[2rem] border border-line bg-surface p-8 shadow-2xl backdrop-blur-xl md:p-10">
               <div className="flex items-center justify-between">
                 <Link
                   href="/"
-                  className="text-sm text-white/55 transition hover:text-white"
+                  className="text-sm text-subtle transition hover:text-foreground"
                 >
                   ← Back home
                 </Link>
-                <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/55">
-                  Admin Login
+                <div className="flex items-center gap-3">
+                  <div className="rounded-full border border-line bg-surface px-3 py-1 text-xs text-subtle">
+                    Admin Login
+                  </div>
+                  <ThemeToggle />
                 </div>
               </div>
 
@@ -94,13 +98,13 @@ export default function LoginClient() {
                 <h2 className="text-3xl font-semibold tracking-tight">
                   Welcome back
                 </h2>
-                <p className="mt-2 text-white/60">
+                <p className="mt-2 text-muted">
                   Continue with GitHub to access the admin area.
                 </p>
               </div>
 
               {error ? (
-                <div className="mt-6 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
+                <div className="mt-6 rounded-2xl border border-danger-line bg-danger-soft p-4 text-sm text-danger">
                   Sign-in failed. Please try again.
                 </div>
               ) : null}
@@ -109,7 +113,7 @@ export default function LoginClient() {
                 <button
                   type="button"
                   onClick={signIn}
-                  className="flex w-full cursor-pointer items-center justify-center gap-3 rounded-2xl bg-white px-5 py-3.5 font-medium text-black transition duration-300 hover:-translate-y-0.5 hover:scale-[1.01] hover:shadow-[0_10px_40px_rgba(255,255,255,0.18)]"
+                  className="flex w-full cursor-pointer items-center justify-center gap-3 rounded-2xl bg-primary px-5 py-3.5 font-medium text-on-primary transition duration-300 hover:-translate-y-0.5 hover:scale-[1.01] hover:shadow-[0_10px_40px_var(--primary-glow)]"
                 >
                   <svg
                     aria-hidden="true"
@@ -121,7 +125,7 @@ export default function LoginClient() {
                   Continue with GitHub
                 </button>
 
-                <div className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-white/50">
+                <div className="rounded-2xl border border-line bg-inset p-4 text-sm text-subtle">
                   Only authorized users can enter the admin dashboard.
                 </div>
               </div>

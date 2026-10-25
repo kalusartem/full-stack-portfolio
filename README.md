@@ -28,6 +28,9 @@ https://full-stack-portfolio-2.pages.dev/
 - Image uploads using Supabase Storage
 - Server-side input validation
 - Row Level Security (RLS) enforced at the database layer
+- Light / dark / system theme (semantic CSS tokens, no flash on load)
+- Optional TOTP two-factor authentication for the admin (`/admin/security`)
+- SEO basics: canonical URL, Open Graph image, JSON-LD (Person + WebSite), sitemap and robots
 
 ---
 
@@ -63,6 +66,8 @@ See detailed breakdown:
 - Admin authorization via `profiles.is_admin`
 - All sensitive operations executed server-side
 - Postgres Row Level Security (RLS) enforces permissions at the database layer
+- Optional TOTP MFA: enable it in Supabase (Authentication -> Multi-Factor), enroll an authenticator at
+  `/admin/security`, then set `REQUIRE_ADMIN_MFA=true` to require it for `/admin/*` and `/api/admin/*`
 
 Detailed explanation:
 
@@ -119,6 +124,8 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 ```
+
+Optional: `REQUIRE_ADMIN_MFA=true` (enroll an authenticator first; see `.env.example` for the other variables).
 
 3. Run the app
 

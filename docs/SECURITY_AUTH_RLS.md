@@ -14,6 +14,14 @@ This document describes the security model used in the app and what should be en
 - Users authenticate via Supabase Auth (OAuth).
 - The app uses **SSR-compatible session handling**, so server-rendered pages can safely read the current user.
 
+### Optional admin MFA (TOTP)
+- Enable TOTP in the Supabase dashboard first: **Authentication -> Multi-Factor**.
+- Admins enroll an authenticator app at `/admin/security` (QR code + 6-digit confirmation) and can remove it there.
+- With `REQUIRE_ADMIN_MFA=true`, middleware requires an `aal2` session for `/admin/*` and `/api/admin/*`:
+  pages redirect to `/admin/security` (enroll, or `?challenge=1` to enter the current code); API calls get `403 {"error":"mfa_required"}`.
+- Any other value (or unset) leaves behaviour unchanged. Enroll first, then turn it on.
+- This is a middleware gate; for DB-level enforcement add an `aal2` check to the admin RLS policies.
+
 ## Authorization (what are you allowed to do?)
 - Admin-only actions depend on a `profiles.is_admin` flag.
 - Admin-only routes should be protected in two places:

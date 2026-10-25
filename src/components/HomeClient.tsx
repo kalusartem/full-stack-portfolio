@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 
 import ContactForm from "@/components/ContactForm";
+import ThemeToggle from "@/components/ThemeToggle";
 import { site } from "@/lib/site";
 import type { Project } from "@/lib/types";
 
@@ -50,7 +51,7 @@ const services = [
   },
 ];
 
-const eyebrow = "text-sm uppercase tracking-[0.25em] text-white/45";
+const eyebrow = "text-sm uppercase tracking-[0.25em] text-subtle";
 const h2 = "mt-4 text-3xl font-semibold tracking-tight md:text-5xl";
 
 export default function HomeClient({ projects, errorMessage }: Props) {
@@ -71,38 +72,39 @@ export default function HomeClient({ projects, errorMessage }: Props) {
   const closeMenu = () => setMenuOpen(false);
 
   return (
-    <div className="min-h-screen overflow-hidden bg-neutral-950 text-white selection:bg-white selection:text-black">
+    <div className="min-h-screen overflow-hidden bg-background text-foreground selection:bg-primary selection:text-on-primary">
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-24 right-[-10%] hidden h-[30rem] w-[30rem] rounded-full bg-fuchsia-500/15 blur-3xl animate-float-slow md:block" />
-        <div className="absolute bottom-[-8rem] left-[-6rem] hidden h-[28rem] w-[28rem] rounded-full bg-cyan-400/12 blur-3xl animate-float-slower md:block" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(99,102,241,0.16),transparent_22%),radial-gradient(circle_at_bottom_left,rgba(236,72,153,0.12),transparent_24%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(255,255,255,0.04)_1px,transparent_1px),linear-gradient(to_right,rgba(255,255,255,0.04)_1px,transparent_1px)] bg-[size:72px_72px] opacity-[0.08]" />
+        <div className="absolute -top-24 right-[-10%] hidden h-[30rem] w-[30rem] rounded-full bg-blob-a blur-3xl animate-float-slow md:block" />
+        <div className="absolute bottom-[-8rem] left-[-6rem] hidden h-[28rem] w-[28rem] rounded-full bg-blob-b blur-3xl animate-float-slower md:block" />
+        <div className="absolute inset-0 bg-aurora" />
+        <div className="absolute inset-0 bg-grid opacity-[0.08]" />
       </div>
 
       <main id="main" className="relative z-10">
         <section className="mx-auto max-w-7xl px-6 pb-20 md:px-10">
           <nav aria-label="Primary" className="sticky top-4 z-30 animate-fade-in-down">
-            <div className="rounded-3xl border border-white/10 bg-black/60 px-5 py-3 backdrop-blur-md md:rounded-full">
+            <div className="rounded-3xl border border-line bg-nav px-5 py-3 backdrop-blur-md md:rounded-full">
               <div className="flex items-center justify-between">
                 <a href="#top" className="text-lg font-semibold tracking-wide md:text-xl">
                   {site.name}
                 </a>
 
-                <div className="hidden items-center gap-8 text-sm text-white/70 md:flex">
+                <div className="hidden items-center gap-8 text-sm text-soft md:flex">
                   {navLinks.map(([label, href]) => (
                     <a
                       key={label}
                       href={href}
-                      className="transition duration-300 hover:-translate-y-0.5 hover:text-white"
+                      className="transition duration-300 hover:-translate-y-0.5 hover:text-foreground"
                     >
                       {label}
                     </a>
                   ))}
+                  <ThemeToggle />
                 </div>
 
                 <button
                   type="button"
-                  className="-mr-2 rounded-xl p-2 text-white/80 md:hidden"
+                  className="-mr-2 rounded-xl p-2 text-soft md:hidden"
                   aria-label={menuOpen ? "Close menu" : "Open menu"}
                   aria-expanded={menuOpen}
                   aria-controls="mobile-menu"
@@ -115,17 +117,21 @@ export default function HomeClient({ projects, errorMessage }: Props) {
               </div>
 
               {menuOpen ? (
-                <div id="mobile-menu" className="mt-3 flex flex-col gap-1 border-t border-white/10 pt-3 md:hidden">
+                <div id="mobile-menu" className="mt-3 flex flex-col gap-1 border-t border-line pt-3 md:hidden">
                   {navLinks.map(([label, href]) => (
                     <a
                       key={label}
                       href={href}
                       onClick={closeMenu}
-                      className="rounded-xl px-3 py-2 text-white/80 hover:bg-white/5 hover:text-white"
+                      className="rounded-xl px-3 py-2 text-soft hover:bg-surface hover:text-foreground"
                     >
                       {label}
                     </a>
                   ))}
+                  <div className="flex items-center justify-between rounded-xl px-3 py-2 text-soft">
+                    <span>Theme</span>
+                    <ThemeToggle />
+                  </div>
                 </div>
               ) : null}
             </div>
@@ -133,18 +139,18 @@ export default function HomeClient({ projects, errorMessage }: Props) {
 
           <div id="top" className="grid items-center gap-14 pt-16 md:pt-24 lg:grid-cols-[1.1fr_0.9fr]">
             <div className="animate-fade-in-up">
-              <div className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/75">
+              <div className="inline-flex items-center rounded-full border border-line bg-surface px-4 py-2 text-sm text-soft">
                 Full-Stack Developer • AI Automation
               </div>
 
               <h1 className="mt-6 text-5xl font-semibold leading-[0.92] tracking-tight md:text-7xl">
                 I build products that
-                <span className="block leading-[1.18] bg-gradient-to-r from-white via-white to-white/50 bg-clip-text text-transparent">
+                <span className="block leading-[1.18] bg-gradient-to-r from-foreground via-foreground to-foreground/50 bg-clip-text text-transparent">
                   feel premium at first glance.
                 </span>
               </h1>
 
-              <p className="mt-6 max-w-2xl text-base leading-8 text-white/70 md:text-lg">
+              <p className="mt-6 max-w-2xl text-base leading-8 text-soft md:text-lg">
                 I design and build modern digital experiences — from AI-powered tools to full-stack web platforms —
                 with a focus on brand presence, clarity, motion, and clean execution.
               </p>
@@ -152,13 +158,13 @@ export default function HomeClient({ projects, errorMessage }: Props) {
               <div className="mt-10 flex flex-wrap gap-4">
                 <a
                   href="#projects"
-                  className="rounded-2xl bg-white px-6 py-3 font-medium text-black shadow-[0_10px_40px_rgba(255,255,255,0.15)] transition duration-300 hover:-translate-y-0.5 hover:scale-[1.03]"
+                  className="rounded-2xl bg-primary px-6 py-3 font-medium text-on-primary shadow-[0_10px_40px_var(--primary-glow)] transition duration-300 hover:-translate-y-0.5 hover:scale-[1.03]"
                 >
                   View Projects
                 </a>
                 <a
                   href="#contact"
-                  className="rounded-2xl border border-white/15 bg-white/5 px-6 py-3 font-medium text-white transition duration-300 hover:-translate-y-0.5 hover:bg-white/10"
+                  className="rounded-2xl border border-line-strong bg-surface px-6 py-3 font-medium text-foreground transition duration-300 hover:-translate-y-0.5 hover:bg-surface-strong"
                 >
                   Get in touch
                 </a>
@@ -166,19 +172,19 @@ export default function HomeClient({ projects, errorMessage }: Props) {
             </div>
 
             <div className="relative animate-fade-in-right">
-              <div className="relative rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-2xl md:p-8">
-                <div className="rounded-[1.5rem] border border-white/10 bg-black/30 p-6">
-                  <div className="text-sm uppercase tracking-[0.22em] text-white/35">What I work with</div>
+              <div className="relative rounded-[2rem] border border-line bg-surface p-6 shadow-2xl md:p-8">
+                <div className="rounded-[1.5rem] border border-line bg-inset p-6">
+                  <div className="text-sm uppercase tracking-[0.22em] text-subtle">What I work with</div>
                   <div className="mt-3 text-3xl font-semibold tracking-tight">
                     Design that looks sharp.
-                    <span className="block text-white/55">Systems that stay usable.</span>
+                    <span className="block text-subtle">Systems that stay usable.</span>
                   </div>
 
                   <div className="mt-8 flex flex-wrap gap-2">
                     {stack.map((item) => (
                       <span
                         key={item}
-                        className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white/75"
+                        className="rounded-full border border-line bg-surface px-3 py-1.5 text-sm text-soft"
                       >
                         {item}
                       </span>
@@ -186,13 +192,13 @@ export default function HomeClient({ projects, errorMessage }: Props) {
                   </div>
 
                   <div className="mt-8 grid grid-cols-2 gap-3">
-                    <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <div className="rounded-2xl border border-line bg-surface p-4">
                       <div className="text-2xl font-semibold">{projects.length}</div>
-                      <div className="mt-1 text-xs text-white/60">Projects shown below</div>
+                      <div className="mt-1 text-xs text-muted">Projects shown below</div>
                     </div>
-                    <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <div className="rounded-2xl border border-line bg-surface p-4">
                       <div className="text-2xl font-semibold">AI + UX</div>
-                      <div className="mt-1 text-xs text-white/60">Focus</div>
+                      <div className="mt-1 text-xs text-muted">Focus</div>
                     </div>
                   </div>
                 </div>
@@ -203,10 +209,10 @@ export default function HomeClient({ projects, errorMessage }: Props) {
 
         <section id="about" className="mx-auto max-w-7xl scroll-mt-24 px-6 py-20 md:px-10">
           <div className="grid items-start gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-            <div className="rounded-[2rem] border border-white/10 bg-white/5 p-8 md:p-10">
+            <div className="rounded-[2rem] border border-line bg-surface p-8 md:p-10">
               <p className={eyebrow}>About</p>
               <h2 className={h2}>Minimal. Intentional. High-impact.</h2>
-              <p className="mt-6 max-w-2xl leading-8 text-white/70">
+              <p className="mt-6 max-w-2xl leading-8 text-soft">
                 I build sleek, high-converting digital products that combine strong branding, clean engineering, and
                 premium user experience. My work focuses on modern web apps, automation systems, and polished
                 interfaces that help founders and businesses stand out.
@@ -217,10 +223,10 @@ export default function HomeClient({ projects, errorMessage }: Props) {
               {highlights.map((item) => (
                 <div
                   key={item.title}
-                  className="rounded-[1.75rem] border border-white/10 bg-white/5 p-6 transition duration-300 hover:-translate-y-1"
+                  className="rounded-[1.75rem] border border-line bg-surface p-6 transition duration-300 hover:-translate-y-1"
                 >
                   <h3 className="text-xl font-semibold">{item.title}</h3>
-                  <p className="mt-2 leading-7 text-white/65">{item.text}</p>
+                  <p className="mt-2 leading-7 text-muted">{item.text}</p>
                 </div>
               ))}
             </div>
@@ -233,7 +239,7 @@ export default function HomeClient({ projects, errorMessage }: Props) {
               <p className={eyebrow}>Services</p>
               <h2 className={h2}>What I build</h2>
             </div>
-            <p className="max-w-xl leading-7 text-white/65">
+            <p className="max-w-xl leading-7 text-muted">
               Products that look premium, feel fast, and solve real business problems through design, automation, and
               scalable development.
             </p>
@@ -243,14 +249,14 @@ export default function HomeClient({ projects, errorMessage }: Props) {
             {services.map((item, index) => (
               <div
                 key={item.title}
-                className="group min-h-[260px] rounded-[2rem] border border-white/10 bg-white/5 p-6 transition duration-300 hover:-translate-y-2 hover:border-white/20"
+                className="group min-h-[260px] rounded-[2rem] border border-line bg-surface p-6 transition duration-300 hover:-translate-y-2 hover:border-line-hover"
               >
                 <div className="flex items-center justify-between">
-                  <div className="text-sm text-white/40">0{index + 1}</div>
-                  <div className="h-10 w-10 rounded-2xl bg-white/10 transition duration-300 group-hover:rotate-12 group-hover:scale-110" />
+                  <div className="text-sm text-subtle">0{index + 1}</div>
+                  <div className="h-10 w-10 rounded-2xl bg-surface-strong transition duration-300 group-hover:rotate-12 group-hover:scale-110" />
                 </div>
                 <h3 className="mt-12 max-w-xs text-2xl font-semibold">{item.title}</h3>
-                <p className="mt-4 leading-7 text-white/60">{item.text}</p>
+                <p className="mt-4 leading-7 text-muted">{item.text}</p>
               </div>
             ))}
           </div>
@@ -264,11 +270,11 @@ export default function HomeClient({ projects, errorMessage }: Props) {
             </div>
 
             {errorMessage ? (
-              <p role="alert" className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-2 text-sm text-red-200">
+              <p role="alert" className="rounded-xl border border-danger-line bg-danger-soft px-4 py-2 text-sm text-danger">
                 Projects are temporarily unavailable. Please try again later.
               </p>
             ) : (
-              <p className="max-w-xl leading-7 text-white/60">
+              <p className="max-w-xl leading-7 text-muted">
                 A selection of recent work across product design, web development, automation, and premium interface
                 builds.
               </p>
@@ -285,8 +291,8 @@ export default function HomeClient({ projects, errorMessage }: Props) {
                   onClick={() => setActiveTag(tag)}
                   className={`rounded-full border px-4 py-1.5 text-sm transition ${
                     activeTag === tag
-                      ? "border-white bg-white text-black"
-                      : "border-white/15 bg-white/5 text-white/70 hover:bg-white/10"
+                      ? "border-primary bg-primary text-on-primary"
+                      : "border-line-strong bg-surface text-soft hover:bg-surface-strong"
                   }`}
                 >
                   {tag ?? "All"}
@@ -300,9 +306,9 @@ export default function HomeClient({ projects, errorMessage }: Props) {
               visibleProjects.map((project) => (
                 <article
                   key={project.id}
-                  className="group overflow-hidden rounded-[2rem] border border-white/10 bg-white/5 transition duration-300 hover:-translate-y-2 hover:border-white/20"
+                  className="group overflow-hidden rounded-[2rem] border border-line bg-surface transition duration-300 hover:-translate-y-2 hover:border-line-hover"
                 >
-                  <div className="relative aspect-[16/10] overflow-hidden border-b border-white/10 bg-white/5">
+                  <div className="relative aspect-[16/10] overflow-hidden border-b border-line bg-surface">
                     {project.image_url ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
@@ -313,7 +319,7 @@ export default function HomeClient({ projects, errorMessage }: Props) {
                         className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                       />
                     ) : (
-                      <div className="flex h-full items-center justify-center bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.12),transparent_55%)] text-sm text-white/45">
+                      <div className="flex h-full items-center justify-center bg-spot text-sm text-subtle">
                         No preview image
                       </div>
                     )}
@@ -321,7 +327,7 @@ export default function HomeClient({ projects, errorMessage }: Props) {
 
                   <div className="p-6">
                     <h3 className="text-2xl font-semibold">{project.title}</h3>
-                    <p className="mt-3 min-h-[72px] leading-7 text-white/65">
+                    <p className="mt-3 min-h-[72px] leading-7 text-muted">
                       {project.description || "No description added yet."}
                     </p>
 
@@ -329,7 +335,7 @@ export default function HomeClient({ projects, errorMessage }: Props) {
                       {project.tags.map((tag) => (
                         <span
                           key={tag}
-                          className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70"
+                          className="rounded-full border border-line bg-surface px-3 py-1 text-xs text-soft"
                         >
                           {tag}
                         </span>
@@ -343,7 +349,7 @@ export default function HomeClient({ projects, errorMessage }: Props) {
                           target="_blank"
                           rel="noreferrer"
                           aria-label={`${project.title} live site (opens in new tab)`}
-                          className="rounded-xl bg-white px-4 py-2 text-sm font-medium text-black transition duration-300 hover:scale-[1.03]"
+                          className="rounded-xl bg-primary px-4 py-2 text-sm font-medium text-on-primary transition duration-300 hover:scale-[1.03]"
                         >
                           Live
                         </a>
@@ -354,7 +360,7 @@ export default function HomeClient({ projects, errorMessage }: Props) {
                           target="_blank"
                           rel="noreferrer"
                           aria-label={`${project.title} source code (opens in new tab)`}
-                          className="rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-sm font-medium text-white transition duration-300 hover:bg-white/10"
+                          className="rounded-xl border border-line-strong bg-surface px-4 py-2 text-sm font-medium text-foreground transition duration-300 hover:bg-surface-strong"
                         >
                           Code
                         </a>
@@ -364,7 +370,7 @@ export default function HomeClient({ projects, errorMessage }: Props) {
                 </article>
               ))
             ) : (
-              <div className="rounded-[2rem] border border-white/10 bg-white/5 p-8 text-white/60 md:col-span-2 xl:col-span-3">
+              <div className="rounded-[2rem] border border-line bg-surface p-8 text-muted md:col-span-2 xl:col-span-3">
                 {projects.length > 0 ? "No projects match this filter." : "Projects are coming soon."}
               </div>
             )}
@@ -372,10 +378,10 @@ export default function HomeClient({ projects, errorMessage }: Props) {
         </section>
 
         <section id="contact" className="mx-auto max-w-7xl scroll-mt-24 px-6 pb-28 md:px-10">
-          <div className="rounded-[2rem] border border-white/10 bg-white/5 p-8 text-center md:p-12">
+          <div className="rounded-[2rem] border border-line bg-surface p-8 text-center md:p-12">
             <p className={eyebrow}>Contact</p>
             <h2 className={h2}>Let&apos;s build something together.</h2>
-            <p className="mx-auto mt-5 max-w-2xl leading-8 text-white/65">
+            <p className="mx-auto mt-5 max-w-2xl leading-8 text-muted">
               Whether it is a product, SaaS interface, automation, or internal tool, I&apos;d love to hear about it.
             </p>
 
@@ -389,7 +395,7 @@ export default function HomeClient({ projects, errorMessage }: Props) {
                     href={href}
                     target="_blank"
                     rel="noreferrer"
-                    className="rounded-2xl border border-white/15 bg-white/5 px-6 py-3 font-medium text-white transition duration-300 hover:bg-white/10"
+                    className="rounded-2xl border border-line-strong bg-surface px-6 py-3 font-medium text-foreground transition duration-300 hover:bg-surface-strong"
                   >
                     {label}
                   </a>
@@ -400,7 +406,7 @@ export default function HomeClient({ projects, errorMessage }: Props) {
         </section>
       </main>
 
-      <footer className="relative z-10 border-t border-white/10 px-6 py-8 text-center text-sm text-white/40">
+      <footer className="relative z-10 border-t border-line px-6 py-8 text-center text-sm text-subtle">
         © {new Date().getFullYear()} {site.name}
       </footer>
     </div>

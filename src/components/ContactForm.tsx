@@ -10,7 +10,7 @@ declare global {
 }
 
 const input =
-  "w-full rounded-xl border border-white/15 bg-black/30 px-4 py-3 text-white placeholder:text-white/35 focus:border-white/40";
+  "w-full rounded-xl border border-line-strong bg-field px-4 py-3 text-foreground placeholder:text-faint focus:border-line-focus";
 
 export default function ContactForm() {
   const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
@@ -42,7 +42,7 @@ export default function ContactForm() {
 
   if (status === "sent") {
     return (
-      <p role="status" className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-6 text-white/80">
+      <p role="status" className="mt-8 rounded-2xl border border-line bg-surface p-6 text-soft">
         Thanks! Your message is on its way. I&apos;ll reply as soon as I can.
       </p>
     );
@@ -51,15 +51,15 @@ export default function ContactForm() {
   return (
     <form onSubmit={onSubmit} className="mx-auto mt-8 max-w-xl space-y-4 text-left">
       <div>
-        <label htmlFor="cf-name" className="mb-1 block text-sm text-white/60">Name</label>
+        <label htmlFor="cf-name" className="mb-1 block text-sm text-muted">Name</label>
         <input id="cf-name" name="name" required maxLength={100} autoComplete="name" className={input} />
       </div>
       <div>
-        <label htmlFor="cf-email" className="mb-1 block text-sm text-white/60">Email</label>
+        <label htmlFor="cf-email" className="mb-1 block text-sm text-muted">Email</label>
         <input id="cf-email" name="email" type="email" required maxLength={200} autoComplete="email" className={input} />
       </div>
       <div>
-        <label htmlFor="cf-message" className="mb-1 block text-sm text-white/60">Message</label>
+        <label htmlFor="cf-message" className="mb-1 block text-sm text-muted">Message</label>
         <textarea id="cf-message" name="message" required maxLength={5000} rows={5} className={input} />
       </div>
 
@@ -74,18 +74,18 @@ export default function ContactForm() {
       {siteKey ? (
         <>
           <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" strategy="lazyOnload" />
-          <div className="cf-turnstile" data-sitekey={siteKey} data-theme="dark" />
+          <div className="cf-turnstile" data-sitekey={siteKey} data-theme="auto" />
         </>
       ) : null}
 
       {status === "error" ? (
-        <p role="alert" className="text-sm text-red-300">{error}</p>
+        <p role="alert" className="text-sm text-danger">{error}</p>
       ) : null}
 
       <button
         type="submit"
         disabled={status === "sending"}
-        className="rounded-2xl bg-white px-6 py-3 font-medium text-black transition duration-300 hover:scale-[1.03] disabled:opacity-60"
+        className="rounded-2xl bg-primary px-6 py-3 font-medium text-on-primary transition duration-300 hover:scale-[1.03] disabled:opacity-60"
       >
         {status === "sending" ? "Sending…" : "Send message"}
       </button>

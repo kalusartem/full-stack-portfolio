@@ -68,9 +68,9 @@ function StatusBanner({ msg }: { msg: string }) {
     <div
       className={cn(
         "rounded-2xl border px-4 py-3 text-sm backdrop-blur-xl",
-        isError && "border-red-400/30 bg-red-500/10 text-red-100",
-        isSuccess && "border-emerald-400/30 bg-emerald-500/10 text-emerald-100",
-        !isError && !isSuccess && "border-white/10 bg-white/5 text-white/75"
+        isError && "border-danger-line bg-danger-soft text-danger",
+        isSuccess && "border-success-line bg-success-soft text-success",
+        !isError && !isSuccess && "border-line bg-surface text-soft"
       )}
     >
       {msg}
@@ -125,7 +125,8 @@ export default function AdminProjectsPage() {
   };
 
   useEffect(() => {
-    load();
+    // Deferred a tick: load() sets state, which react-hooks/set-state-in-effect rejects when called inline.
+    void Promise.resolve().then(load);
   }, []);
 
   const reset = () => {
@@ -266,13 +267,13 @@ export default function AdminProjectsPage() {
     >
       <section
        
-        className="rounded-[2rem] border border-white/10 bg-white/5 p-6 backdrop-blur-xl shadow-[0_18px_60px_rgba(0,0,0,0.28)] md:p-8"
+        className="rounded-[2rem] border border-line bg-surface p-6 backdrop-blur-xl shadow-[0_18px_60px_var(--shadow)] md:p-8"
       >
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="text-xs uppercase tracking-[0.28em] text-white/45">Project manager</p>
+            <p className="text-xs uppercase tracking-[0.28em] text-subtle">Project manager</p>
             <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-5xl">Manage portfolio projects</h1>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-white/65 md:text-base">
+            <p className="mt-4 max-w-2xl text-sm leading-7 text-muted md:text-base">
               Create, edit, reorder, publish, and clean up your work from one modern admin screen.
             </p>
           </div>
@@ -283,9 +284,9 @@ export default function AdminProjectsPage() {
               { label: "Published", value: summary.published },
               { label: "Drafts", value: summary.drafts },
             ].map((item) => (
-              <div key={item.label} className="rounded-2xl border border-white/10 bg-black/20 p-4 text-center">
+              <div key={item.label} className="rounded-2xl border border-line bg-inset p-4 text-center">
                 <div className="text-2xl font-semibold">{item.value}</div>
-                <div className="mt-1 text-xs uppercase tracking-[0.2em] text-white/45">{item.label}</div>
+                <div className="mt-1 text-xs uppercase tracking-[0.2em] text-subtle">{item.label}</div>
               </div>
             ))}
           </div>
@@ -303,17 +304,17 @@ export default function AdminProjectsPage() {
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)]">
         <section
          
-          className="rounded-[2rem] border border-white/10 bg-white/5 p-6 backdrop-blur-xl md:p-8"
+          className="rounded-[2rem] border border-line bg-surface p-6 backdrop-blur-xl md:p-8"
         >
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-sm uppercase tracking-[0.25em] text-white/45">Editor</p>
+              <p className="text-sm uppercase tracking-[0.25em] text-subtle">Editor</p>
               <h2 className="mt-3 text-2xl font-semibold tracking-tight">
                 {editingId ? "Edit project" : "Create new project"}
               </h2>
             </div>
             {editingId && (
-              <span className="rounded-full border border-fuchsia-400/30 bg-fuchsia-500/10 px-3 py-1 text-xs font-medium text-fuchsia-100">
+              <span className="rounded-full border border-highlight-line bg-highlight-soft px-3 py-1 text-xs font-medium text-highlight">
                 Editing existing item
               </span>
             )}
@@ -321,9 +322,9 @@ export default function AdminProjectsPage() {
 
           <div className="mt-6 grid gap-4">
             <div className="grid gap-2">
-              <label className="text-sm text-white/70">Title</label>
+              <label className="text-sm text-soft">Title</label>
               <input
-                className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none transition placeholder:text-white/30 focus:border-white/25"
+                className="rounded-2xl border border-line bg-field px-4 py-3 text-foreground outline-none transition placeholder:text-faint focus:border-line-focus"
                 placeholder="Modern AI dashboard"
                 value={form.title}
                 onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
@@ -331,9 +332,9 @@ export default function AdminProjectsPage() {
             </div>
 
             <div className="grid gap-2">
-              <label className="text-sm text-white/70">Description</label>
+              <label className="text-sm text-soft">Description</label>
               <textarea
-                className="min-h-32 rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none transition placeholder:text-white/30 focus:border-white/25"
+                className="min-h-32 rounded-2xl border border-line bg-field px-4 py-3 text-foreground outline-none transition placeholder:text-faint focus:border-line-focus"
                 placeholder="Describe the project, outcome, stack, and why it matters."
                 value={form.description}
                 onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
@@ -341,9 +342,9 @@ export default function AdminProjectsPage() {
             </div>
 
             <div className="grid gap-2">
-              <label className="text-sm text-white/70">Tags</label>
+              <label className="text-sm text-soft">Tags</label>
               <input
-                className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none transition placeholder:text-white/30 focus:border-white/25"
+                className="rounded-2xl border border-line bg-field px-4 py-3 text-foreground outline-none transition placeholder:text-faint focus:border-line-focus"
                 placeholder="nextjs, supabase, framer-motion"
                 value={form.tags}
                 onChange={(e) => setForm((f) => ({ ...f, tags: e.target.value }))}
@@ -351,7 +352,7 @@ export default function AdminProjectsPage() {
               {tagsArray.length > 0 && (
                 <div className="flex flex-wrap gap-2 pt-1">
                   {tagsArray.map((tag) => (
-                    <span key={tag} className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70">
+                    <span key={tag} className="rounded-full border border-line bg-surface px-3 py-1 text-xs text-soft">
                       {tag}
                     </span>
                   ))}
@@ -361,18 +362,18 @@ export default function AdminProjectsPage() {
 
             <div className="grid gap-4 md:grid-cols-2">
               <div className="grid gap-2">
-                <label className="text-sm text-white/70">Live URL</label>
+                <label className="text-sm text-soft">Live URL</label>
                 <input
-                  className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none transition placeholder:text-white/30 focus:border-white/25"
+                  className="rounded-2xl border border-line bg-field px-4 py-3 text-foreground outline-none transition placeholder:text-faint focus:border-line-focus"
                   placeholder="https://yourproject.com"
                   value={form.live_url}
                   onChange={(e) => setForm((f) => ({ ...f, live_url: e.target.value }))}
                 />
               </div>
               <div className="grid gap-2">
-                <label className="text-sm text-white/70">Repo URL</label>
+                <label className="text-sm text-soft">Repo URL</label>
                 <input
-                  className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none transition placeholder:text-white/30 focus:border-white/25"
+                  className="rounded-2xl border border-line bg-field px-4 py-3 text-foreground outline-none transition placeholder:text-faint focus:border-line-focus"
                   placeholder="https://github.com/..."
                   value={form.repo_url}
                   onChange={(e) => setForm((f) => ({ ...f, repo_url: e.target.value }))}
@@ -381,22 +382,22 @@ export default function AdminProjectsPage() {
             </div>
 
             <div className="grid gap-2">
-              <label className="text-sm text-white/70">Image URL</label>
+              <label className="text-sm text-soft">Image URL</label>
               <input
-                className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-white outline-none transition placeholder:text-white/30 focus:border-white/25"
+                className="rounded-2xl border border-line bg-field px-4 py-3 text-foreground outline-none transition placeholder:text-faint focus:border-line-focus"
                 placeholder="Optional external image URL"
                 value={form.image_url}
                 onChange={(e) => setForm((f) => ({ ...f, image_url: e.target.value }))}
               />
             </div>
 
-            <div className="rounded-[1.5rem] border border-dashed border-white/15 bg-black/20 p-5">
+            <div className="rounded-[1.5rem] border border-dashed border-line-strong bg-inset p-5">
               <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <div>
-                  <p className="text-sm font-medium text-white">Project image</p>
-                  <p className="mt-1 text-sm text-white/50">Upload a replacement image or keep the current file attached.</p>
+                  <p className="text-sm font-medium text-foreground">Project image</p>
+                  <p className="mt-1 text-sm text-subtle">Upload a replacement image or keep the current file attached.</p>
                 </div>
-                <label className="inline-flex cursor-pointer items-center justify-center rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-white transition hover:bg-white/10">
+                <label className="inline-flex cursor-pointer items-center justify-center rounded-2xl border border-line bg-surface px-4 py-3 text-sm font-medium text-foreground transition hover:bg-surface-strong">
                   Choose image
                   <input
                     type="file"
@@ -415,32 +416,32 @@ export default function AdminProjectsPage() {
               </div>
 
               {imageFile && (
-                <p className="mt-3 text-sm text-white/60">
-                  Selected: <span className="text-white">{imageFile.name || imageFile.path || "Attached image"}</span>
+                <p className="mt-3 text-sm text-muted">
+                  Selected: <span className="text-foreground">{imageFile.name || imageFile.path || "Attached image"}</span>
                 </p>
               )}
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
-              <label className="flex items-center justify-between rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
+              <label className="flex items-center justify-between rounded-2xl border border-line bg-inset px-4 py-3">
                 <span>
-                  <span className="block text-sm font-medium text-white">Published</span>
-                  <span className="mt-1 block text-xs text-white/45">Show this project on the live portfolio.</span>
+                  <span className="block text-sm font-medium text-foreground">Published</span>
+                  <span className="mt-1 block text-xs text-subtle">Show this project on the live portfolio.</span>
                 </span>
                 <input
                   type="checkbox"
                   checked={form.is_published}
                   onChange={(e) => setForm((f) => ({ ...f, is_published: e.target.checked }))}
-                  className="h-5 w-5 rounded border-white/20 bg-black/30 text-white"
+                  className="h-5 w-5 rounded border-line-strong accent-primary"
                 />
               </label>
 
-              <label className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
-                <span className="block text-sm font-medium text-white">Sort order</span>
-                <span className="mt-1 block text-xs text-white/45">Lower numbers can be used to prioritize featured work.</span>
+              <label className="rounded-2xl border border-line bg-inset px-4 py-3">
+                <span className="block text-sm font-medium text-foreground">Sort order</span>
+                <span className="mt-1 block text-xs text-subtle">Lower numbers can be used to prioritize featured work.</span>
                 <input
                   type="number"
-                  className="mt-3 w-28 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white outline-none focus:border-white/25"
+                  className="mt-3 w-28 rounded-xl border border-line bg-surface px-3 py-2 text-foreground outline-none focus:border-line-focus"
                   value={form.sort_order}
                   onChange={(e) => setForm((f) => ({ ...f, sort_order: Number(e.target.value) }))}
                 />
@@ -449,14 +450,14 @@ export default function AdminProjectsPage() {
 
             <div className="flex flex-wrap gap-3 pt-2">
               <button
-                className="rounded-2xl bg-white px-5 py-3 font-medium text-black shadow-[0_10px_40px_rgba(255,255,255,0.12)] transition hover:scale-[1.02]"
+                className="rounded-2xl bg-primary px-5 py-3 font-medium text-on-primary shadow-[0_10px_40px_var(--primary-glow)] transition hover:scale-[1.02]"
                 onClick={save}
               >
                 {editingId ? "Save changes" : "Create project"}
               </button>
               {editingId && (
                 <button
-                  className="rounded-2xl border border-white/15 bg-white/5 px-5 py-3 font-medium text-white transition hover:bg-white/10"
+                  className="rounded-2xl border border-line-strong bg-surface px-5 py-3 font-medium text-foreground transition hover:bg-surface-strong"
                   onClick={reset}
                 >
                   Cancel edit
@@ -470,15 +471,15 @@ export default function AdminProjectsPage() {
 
         <section
          
-          className="rounded-[2rem] border border-white/10 bg-white/5 p-6 backdrop-blur-xl md:p-8"
+          className="rounded-[2rem] border border-line bg-surface p-6 backdrop-blur-xl md:p-8"
         >
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-sm uppercase tracking-[0.25em] text-white/45">Inventory</p>
+              <p className="text-sm uppercase tracking-[0.25em] text-subtle">Inventory</p>
               <h2 className="mt-3 text-2xl font-semibold tracking-tight">Existing projects</h2>
             </div>
             <button
-              className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white/80 transition hover:bg-white/10"
+              className="rounded-2xl border border-line bg-surface px-4 py-2 text-sm text-soft transition hover:bg-surface-strong"
               onClick={load}
             >
               Refresh
@@ -489,15 +490,15 @@ export default function AdminProjectsPage() {
             {loading ? (
               <div className="space-y-3">
                 {[1, 2, 3].map((item) => (
-                  <div key={item} className="animate-pulse rounded-[1.5rem] border border-white/10 bg-black/20 p-5">
-                    <div className="h-5 w-32 rounded bg-white/10" />
-                    <div className="mt-3 h-4 w-full rounded bg-white/5" />
-                    <div className="mt-2 h-4 w-2/3 rounded bg-white/5" />
+                  <div key={item} className="animate-pulse rounded-[1.5rem] border border-line bg-inset p-5">
+                    <div className="h-5 w-32 rounded bg-surface-strong" />
+                    <div className="mt-3 h-4 w-full rounded bg-surface" />
+                    <div className="mt-2 h-4 w-2/3 rounded bg-surface" />
                   </div>
                 ))}
               </div>
             ) : projects.length === 0 ? (
-              <div className="rounded-[1.5rem] border border-dashed border-white/15 bg-black/20 p-6 text-center text-white/55">
+              <div className="rounded-[1.5rem] border border-dashed border-line-strong bg-inset p-6 text-center text-subtle">
                 No projects yet. Create your first one in the editor.
               </div>
             ) : (
@@ -506,38 +507,38 @@ export default function AdminProjectsPage() {
                   <div
                     key={p.id}
                    
-                    className="rounded-[1.5rem] border border-white/10 bg-black/20 p-5 transition hover:border-white/20 hover:bg-white/10"
+                    className="rounded-[1.5rem] border border-line bg-inset p-5 transition hover:border-line-hover hover:bg-surface-strong"
                   >
                     <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                       <div>
                         <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="text-lg font-semibold text-white">{p.title}</h3>
+                          <h3 className="text-lg font-semibold text-foreground">{p.title}</h3>
                           <span
                             className={cn(
                               "rounded-full px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.2em]",
                               p.is_published
-                                ? "bg-emerald-500/15 text-emerald-100"
-                                : "bg-white/10 text-white/60"
+                                ? "bg-success-soft text-success"
+                                : "bg-surface-strong text-muted"
                             )}
                           >
                             {p.is_published ? "Published" : "Draft"}
                           </span>
                         </div>
-                        <p className="mt-2 max-w-2xl text-sm leading-7 text-white/62">{p.description}</p>
+                        <p className="mt-2 max-w-2xl text-sm leading-7 text-muted">{p.description}</p>
 
                         <div className="mt-4 flex flex-wrap gap-2">
                           {(p.tags ?? []).length > 0 ? (
                             p.tags.map((tag) => (
-                              <span key={`${p.id}-${tag}`} className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70">
+                              <span key={`${p.id}-${tag}`} className="rounded-full border border-line bg-surface px-3 py-1 text-xs text-soft">
                                 {tag}
                               </span>
                             ))
                           ) : (
-                            <span className="text-xs text-white/35">No tags</span>
+                            <span className="text-xs text-subtle">No tags</span>
                           )}
                         </div>
 
-                        <div className="mt-4 flex flex-wrap gap-4 text-xs uppercase tracking-[0.18em] text-white/40">
+                        <div className="mt-4 flex flex-wrap gap-4 text-xs uppercase tracking-[0.18em] text-subtle">
                           <span>Sort {p.sort_order}</span>
                           {p.live_url && <span>Live linked</span>}
                           {p.repo_url && <span>Repo linked</span>}
@@ -547,13 +548,13 @@ export default function AdminProjectsPage() {
 
                       <div className="flex shrink-0 gap-2">
                         <button
-                          className="rounded-2xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/10"
+                          className="rounded-2xl border border-line bg-surface px-4 py-2 text-sm font-medium text-foreground transition hover:bg-surface-strong"
                           onClick={() => edit(p)}
                         >
                           Edit
                         </button>
                         <button
-                          className="rounded-2xl bg-red-500/90 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-500"
+                          className="rounded-2xl bg-danger-solid px-4 py-2 text-sm font-medium text-white transition hover:bg-danger-solid-hover"
                           onClick={() => del(p.id, p.image_path)}
                         >
                           Delete
