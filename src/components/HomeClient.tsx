@@ -134,23 +134,24 @@ function ProjectImage({ project, className = "" }: { project: Project; className
   );
 }
 
-function ProjectCard({ project, featured }: { project: Project; featured: boolean }) {
+// `featured` marks the newest project; `wide` gives any full-width card the side-by-side layout.
+function ProjectCard({ project, featured, wide }: { project: Project; featured: boolean; wide: boolean }) {
   const [expanded, setExpanded] = useState(false);
   const description = project.description || "No description added yet.";
-  const long = description.length > (featured ? 420 : 180);
+  const long = description.length > (wide ? 420 : 180);
 
   return (
     <article
       className={`group flex flex-col overflow-hidden rounded-3xl border border-line bg-surface transition duration-300 hover:border-line-hover ${
-        featured ? "md:col-span-2 lg:col-span-3 lg:grid lg:grid-cols-[1.3fr_1fr]" : ""
+        wide ? "md:col-span-full lg:grid lg:grid-cols-[1.3fr_1fr]" : ""
       }`}
     >
       <ProjectImage
         project={project}
-        className={featured ? "aspect-[16/10] border-b border-line lg:aspect-auto lg:min-h-[380px] lg:border-b-0 lg:border-r" : "aspect-[16/10] border-b border-line"}
+        className={wide ? "aspect-[16/10] border-b border-line lg:aspect-auto lg:min-h-[380px] lg:border-b-0 lg:border-r" : "aspect-[16/10] border-b border-line"}
       />
 
-      <div className={`flex flex-1 flex-col ${featured ? "p-6 md:p-8" : "p-6"}`}>
+      <div className={`flex flex-1 flex-col ${wide ? "p-6 md:p-8" : "p-6"}`}>
         <div className="flex items-center gap-2">
           {featured ? <span className={eyebrow}>Latest</span> : null}
           {isLive(project) ? (
@@ -159,9 +160,9 @@ function ProjectCard({ project, featured }: { project: Project; featured: boolea
             </span>
           ) : null}
         </div>
-        <h3 className={`mt-2 font-semibold tracking-tight ${featured ? "text-3xl" : "text-2xl"}`}>{project.title}</h3>
+        <h3 className={`mt-2 font-semibold tracking-tight ${wide ? "text-3xl" : "text-2xl"}`}>{project.title}</h3>
 
-        <p className={`mt-3 leading-7 text-muted ${expanded ? "" : featured ? "line-clamp-6" : "line-clamp-3"}`}>
+        <p className={`mt-3 leading-7 text-muted ${expanded ? "" : wide ? "line-clamp-6" : "line-clamp-3"}`}>
           {description}
         </p>
         {long ? (
@@ -186,7 +187,7 @@ function ProjectCard({ project, featured }: { project: Project; featured: boolea
         ) : null}
 
         <div className="mt-auto pt-6">
-          <ProjectLinks project={project} size={featured ? "md" : "sm"} />
+          <ProjectLinks project={project} size={wide ? "md" : "sm"} />
         </div>
       </div>
     </article>
@@ -231,6 +232,11 @@ export default function HomeClient({ projects, errorMessage }: Props) {
     site.github && { label: "GitHub", href: site.github, handle: handleOf(site.github), Icon: GitHubIcon },
     site.linkedin && { label: "LinkedIn", href: site.linkedin, handle: handleOf(site.linkedin), Icon: LinkedInIcon },
   ].filter(Boolean) as Social[];
+
+  // The newest project spans the full row; size the grid for the rest so the last row isn't half empty.
+  const hasFeatured = !activeTag && visibleProjects.length > 0;
+  const gridCount = visibleProjects.length - (hasFeatured ? 1 : 0);
+  const gridCols = gridCount % 3 === 0 ? "lg:grid-cols-3" : "lg:grid-cols-2";
 
   const liveCount = projects.filter(isLive).length;
   const heroProject = projects.find((p) => p.image_url);
@@ -432,13 +438,18 @@ export default function HomeClient({ projects, errorMessage }: Props) {
             </div>
           ) : null}
 
-          <div className="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className={`mt-10 grid gap-6 md:grid-cols-2 ${gridCols}`}>
             {visibleProjects.length > 0 ? (
               visibleProjects.map((project, index) => (
-                <ProjectCard key={project.id} project={project} featured={index === 0 && !activeTag} />
+                <ProjectCard
+                  key={project.id}
+                  project={project}
+                  featured={index === 0 && hasFeatured}
+                  wide={(index === 0 && hasFeatured) || gridCount === 1}
+                />
               ))
             ) : (
-              <div className="rounded-3xl border border-line bg-surface p-8 text-muted md:col-span-2 lg:col-span-3">
+              <div className="rounded-3xl border border-line bg-surface p-8 text-muted md:col-span-full">
                 {projects.length > 0 ? "No projects match this filter." : "Projects are coming soon."}
               </div>
             )}
