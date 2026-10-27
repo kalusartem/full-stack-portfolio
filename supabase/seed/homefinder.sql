@@ -4,10 +4,17 @@
 insert into public.projects (title, description, tags, live_url, image_url, is_published, sort_order)
 select
   'HomeFinder',
-  'A Zillow-style home search on MLS data built with Next.js 15, React 19 and Leaflet: a synced map and list with price pins, draw-to-search, filters, saved homes and side-by-side compare, a mortgage payment calculator and tour requests with consent records, in English, Russian and Spanish. It talks to any RESO Web API feed (Bridge, Trestle, Spark) or SimplyRETS and runs on Cloudflare Workers through OpenNext.',
-  array['Next.js', 'React', 'TypeScript', 'Leaflet', 'RESO Web API', 'Cloudflare Workers']::text[],
-  'https://homefinder.kalusartem.workers.dev/',
+  'A Zillow-style home search on MLS data built with Next.js 15, React 19 and Leaflet: a synced map and list with price pins, draw-to-search, filters, saved homes and side-by-side compare, a mortgage payment calculator and tour requests with consent records, in English, Russian and Spanish. It talks to any RESO Web API feed (Bridge, Trestle, Spark) or SimplyRETS and runs on Cloudflare Pages through OpenNext.',
+  array['Next.js', 'React', 'TypeScript', 'Leaflet', 'RESO Web API', 'Cloudflare Pages']::text[],
+  'https://homefinder-5cn.pages.dev/',
   'https://kalusartem.github.io/images/homefinder.jpg',
   true,
   0
 where not exists (select 1 from public.projects where title = 'HomeFinder');
+
+-- If the row already exists, move it to the Pages deployment:
+-- update public.projects
+-- set live_url = 'https://homefinder-5cn.pages.dev/',
+--     tags = array_replace(tags, 'Cloudflare Workers', 'Cloudflare Pages'),
+--     description = replace(description, 'runs on Cloudflare Workers', 'runs on Cloudflare Pages')
+-- where title = 'HomeFinder';
