@@ -6,7 +6,7 @@ select
   'HomeFinder',
   'A Zillow-style home search on MLS data built with Next.js 15, React 19 and Leaflet: a synced map and list with price pins, draw-to-search, filters, saved homes and side-by-side compare, a mortgage payment calculator and tour requests with consent records, in English, Russian and Spanish. It talks to any RESO Web API feed (Bridge, Trestle, Spark) or SimplyRETS and runs on Cloudflare Workers through OpenNext.',
   array['Next.js', 'React', 'TypeScript', 'Leaflet', 'RESO Web API', 'Cloudflare Workers']::text[],
-  'https://homefinder-mls.kalusartem.workers.dev/',
+  'https://homefinder.kalusartem.workers.dev/',
   'https://kalusartem.github.io/images/homefinder.jpg',
   true,
   0
