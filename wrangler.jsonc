@@ -1,0 +1,14 @@
+// Used by the OpenNext build (scripts/build-pages.sh bundles the worker with it). The site itself is the
+// full-stack-portfolio-2 Cloudflare Pages project, whose compatibility settings, variables and secrets are in the
+// dashboard; keep compatibility_date and the flags here the same as there.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "full-stack-portfolio-2",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2025-12-26",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  }
+}

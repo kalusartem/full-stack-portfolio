@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { HOME_PROJECT_LIMIT } from "@/lib/site";
-export const runtime = "edge";
 
 type Project = {
   id: string;

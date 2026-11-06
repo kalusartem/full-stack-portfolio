@@ -135,6 +135,17 @@ npm run dev
 
 ---
 
+## Deploy (Cloudflare Pages)
+
+The site is the `full-stack-portfolio-2` Cloudflare Pages project (https://full-stack-portfolio-2.pages.dev), built
+with [OpenNext](https://opennext.js.org/cloudflare) and connected to this repository: every push builds and deploys
+(`main` to production, other branches to preview URLs). Build command `npm run build:pages`, output directory
+`.pages`; `npm run deploy:pages` deploys from this machine and `npm run preview` runs the Cloudflare build locally.
+
+Variables and secrets (`NEXT_PUBLIC_*`, `RESEND_API_KEY`, `TURNSTILE_SECRET_KEY`, `CONTACT_TO_EMAIL`) and the
+compatibility settings (`nodejs_compat`) are in the Pages dashboard. `NEXT_PUBLIC_*` values are baked in at build
+time. The pages that read the database (`/`, `/projects`) render on every request (`force-dynamic`).
+
 ## Testing
 
 ```bash

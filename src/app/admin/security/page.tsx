@@ -1,9 +1,6 @@
 import Breadcrumbs from "@/components/Breadcrumbs";
 import SecurityClient from "./SecurityClient";
 
-// Reads searchParams and the REQUIRE_ADMIN_MFA env var per request, so it must run on the edge runtime.
-export const runtime = "edge";
-
 // Only same-site /admin paths are valid post-verification targets (no open redirects).
 function safeNext(next: string | undefined) {
   return next && next.startsWith("/admin") && !next.startsWith("//") ? next : "/admin";

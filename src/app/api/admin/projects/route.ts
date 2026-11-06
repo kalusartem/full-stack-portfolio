@@ -7,8 +7,6 @@ import {
 } from "@/lib/validation/projects";
 import { HOME_PROJECT_LIMIT } from "@/lib/site";
 
-export const runtime = "edge";
-
 /**
  * Accept BOTH request shapes:
  * 1) Legacy (your current client): { id: string|null, payload: {...fields} }

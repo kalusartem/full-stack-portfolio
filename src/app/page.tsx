@@ -2,8 +2,8 @@ import HomeClient from "@/components/HomeClient";
 import { getProjects } from "@/lib/projects";
 import { site } from "@/lib/site";
 
-// Cloudflare Pages requires the edge runtime for dynamic routes (ISR is not available there).
-export const runtime = "edge";
+// Rendered on every request, so projects added or picked in the admin show at once (nothing is revalidated).
+export const dynamic = "force-dynamic";
 
 // Person + WebSite structured data; sameAs only includes profile links that are configured.
 const sameAs = [site.github, site.linkedin].filter((url): url is string => Boolean(url));

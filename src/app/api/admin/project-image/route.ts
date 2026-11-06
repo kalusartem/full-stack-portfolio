@@ -1,8 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { applyCookies, requireAdmin } from "../_utils";
 
-export const runtime = "edge";
-
 export async function POST(req: NextRequest) {
   const gate = await requireAdmin(req);
   if (!gate.ok) return gate.response;
