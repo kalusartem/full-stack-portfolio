@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import { HOME_PROJECT_LIMIT } from "@/lib/site";
 export const runtime = "edge";
 
 type Project = {
@@ -16,6 +17,8 @@ type Project = {
   image_path: string | null;
   is_published: boolean;
   sort_order: number;
+  // Missing until the show_on_home migration has been run.
+  show_on_home?: boolean;
 };
 
 type ImageState = {
@@ -35,7 +38,19 @@ const emptyForm = {
   image_name: "",
   is_published: true,
   sort_order: 0,
+  show_on_home: false,
 };
+
+// API errors come back as {error: string} or {error: {message}}; show the message, not raw JSON.
+async function errorText(res: Response) {
+  const text = await res.text();
+  try {
+    const json = JSON.parse(text) as { error?: string | { message?: string } };
+    const message = typeof json.error === "string" ? json.error : json.error?.message;
+    if (message) return message;
+  } catch {}
+  return text || res.statusText;
+}
 
 const fadeUp = {
   hidden: { opacity: 0, y: 22 },
@@ -99,8 +114,14 @@ export default function AdminProjectsPage() {
       total: projects.length,
       published,
       drafts: projects.length - published,
+      onHome: projects.filter((project) => project.show_on_home).length,
     };
   }, [projects]);
+
+  // Only send show_on_home once the column exists, so saves keep working before the migration runs.
+  const homeColumnReady = projects.length === 0 || projects.some((project) => "show_on_home" in project);
+  const homeFull = summary.onHome >= HOME_PROJECT_LIMIT;
+  const editingOnHome = projects.some((project) => project.id === editingId && project.show_on_home);
 
   const load = async () => {
     setLoading(true);
@@ -185,6 +206,7 @@ export default function AdminProjectsPage() {
       image_url: form.image_url.trim() || null,
       is_published: form.is_published,
       sort_order: Number(form.sort_order) || 0,
+      ...(homeColumnReady && { show_on_home: form.show_on_home }),
       image_name: file?.name,
       image_path: file?.type ? uploadedPath : imageFile?.path,
     };
@@ -201,8 +223,7 @@ export default function AdminProjectsPage() {
     });
 
     if (!res.ok) {
-      const text = await res.text();
-      setMsg(`Save error: ${text || res.statusText}`);
+      setMsg(`Save error: ${await errorText(res)}`);
       return;
     }
 
@@ -227,6 +248,7 @@ export default function AdminProjectsPage() {
       image_name: p.image_name ?? "",
       is_published: p.is_published,
       sort_order: p.sort_order ?? 0,
+      show_on_home: p.show_on_home ?? false,
     });
 
     if (p.image_name || p.image_path) {
@@ -237,6 +259,25 @@ export default function AdminProjectsPage() {
 
     setMsg("");
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // One-click pin/unpin from the project list; only sends the one field.
+  const toggleHome = async (p: Project) => {
+    setMsg("");
+    const res = await fetch("/api/admin/projects", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: p.id, show_on_home: !p.show_on_home }),
+    });
+
+    if (!res.ok) {
+      setMsg(`Save error: ${await errorText(res)}`);
+      return;
+    }
+
+    if (editingId === p.id) setForm((f) => ({ ...f, show_on_home: !p.show_on_home }));
+    await load();
+    setMsg(p.show_on_home ? `Saved ✅ ${p.title} removed from the home page.` : `Saved ✅ ${p.title} added to the home page.`);
   };
 
   const del = async (id: string, image_path: string | null) => {
@@ -278,11 +319,12 @@ export default function AdminProjectsPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-3 sm:min-w-[320px]">
+          <div className="grid grid-cols-2 gap-3 sm:min-w-[420px] sm:grid-cols-4">
             {[
               { label: "Total", value: summary.total },
               { label: "Published", value: summary.published },
               { label: "Drafts", value: summary.drafts },
+              { label: "Home page", value: `${summary.onHome}/${HOME_PROJECT_LIMIT}` },
             ].map((item) => (
               <div key={item.label} className="rounded-2xl border border-line bg-inset p-4 text-center">
                 <div className="text-2xl font-semibold">{item.value}</div>
@@ -446,6 +488,26 @@ export default function AdminProjectsPage() {
                   onChange={(e) => setForm((f) => ({ ...f, sort_order: Number(e.target.value) }))}
                 />
               </label>
+
+              {homeColumnReady && (
+                <label className="flex items-center justify-between rounded-2xl border border-line bg-inset px-4 py-3 md:col-span-2">
+                  <span>
+                    <span className="block text-sm font-medium text-foreground">Show on home page</span>
+                    <span className="mt-1 block text-xs text-subtle">
+                      {homeFull && !editingOnHome && !form.show_on_home
+                        ? `The home page already has ${HOME_PROJECT_LIMIT} projects. Remove one to add this.`
+                        : `Up to ${HOME_PROJECT_LIMIT} projects, ordered by sort order. The rest are on /projects.`}
+                    </span>
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={form.show_on_home}
+                    disabled={homeFull && !editingOnHome && !form.show_on_home}
+                    onChange={(e) => setForm((f) => ({ ...f, show_on_home: e.target.checked }))}
+                    className="h-5 w-5 rounded border-line-strong accent-primary disabled:opacity-40"
+                  />
+                </label>
+              )}
             </div>
 
             <div className="flex flex-wrap gap-3 pt-2">
@@ -523,6 +585,11 @@ export default function AdminProjectsPage() {
                           >
                             {p.is_published ? "Published" : "Draft"}
                           </span>
+                          {p.show_on_home && (
+                            <span className="rounded-full bg-accent-soft px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.2em] text-accent">
+                              Home page
+                            </span>
+                          )}
                         </div>
                         <p className="mt-2 max-w-2xl text-sm leading-7 text-muted">{p.description}</p>
 
@@ -546,7 +613,22 @@ export default function AdminProjectsPage() {
                         </div>
                       </div>
 
-                      <div className="flex shrink-0 gap-2">
+                      <div className="flex shrink-0 flex-wrap gap-2">
+                        {homeColumnReady && (
+                          <button
+                            className="rounded-2xl border border-line bg-surface px-4 py-2 text-sm font-medium text-foreground transition hover:bg-surface-strong disabled:cursor-not-allowed disabled:opacity-40"
+                            onClick={() => toggleHome(p)}
+                            disabled={!p.show_on_home && homeFull}
+                            aria-pressed={Boolean(p.show_on_home)}
+                            title={
+                              !p.show_on_home && homeFull
+                                ? `The home page already has ${HOME_PROJECT_LIMIT} projects`
+                                : undefined
+                            }
+                          >
+                            {p.show_on_home ? "Remove from home" : "Add to home"}
+                          </button>
+                        )}
                         <button
                           className="rounded-2xl border border-line bg-surface px-4 py-2 text-sm font-medium text-foreground transition hover:bg-surface-strong"
                           onClick={() => edit(p)}

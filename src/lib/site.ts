@@ -8,3 +8,6 @@ export const site = {
   github: process.env.NEXT_PUBLIC_GITHUB_URL,
   linkedin: process.env.NEXT_PUBLIC_LINKEDIN_URL,
 };
+
+// Max projects the admin can pin to the home page (enforced in the admin API).
+export const HOME_PROJECT_LIMIT = 3;

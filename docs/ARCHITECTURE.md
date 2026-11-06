@@ -86,6 +86,7 @@ tests/
   - `tags` (text array)
   - `live_url`, `repo_url`
   - `image_url` (external) and/or `image_path` (storage object path)
+  - `show_on_home` boolean: pinned to the home page from the admin (max 3, enforced in the admin API); see `supabase/migrations/20261106_projects_show_on_home.sql`
 
 ## Key invariants
 - All writes are validated (Zod) and authorized (admin).

@@ -17,7 +17,7 @@ import {
 import { isLive, ProjectGrid, ProjectImage } from "@/components/ProjectCard";
 import { SiteShell, socials } from "@/components/SiteChrome";
 import { btnPrimary, btnSecondary, chip, eyebrow, h2, handleOf } from "@/components/ui";
-import { site } from "@/lib/site";
+import { HOME_PROJECT_LIMIT, site } from "@/lib/site";
 import { uniqueTags } from "@/lib/tags";
 import type { Project } from "@/lib/types";
 
@@ -26,8 +26,15 @@ type Props = {
   errorMessage?: string;
 };
 
-// The home page previews only the newest few; the full, filterable list lives on /projects.
-const HOME_PROJECT_LIMIT = 3;
+// Projects pinned in the admin ("Show on home page"), lowest sort order first, newest breaking ties.
+// Until anything is pinned, fall back to the newest few. The full, filterable list lives on /projects.
+function pickHomeProjects(projects: Project[]): Project[] {
+  const pinned = projects
+    .filter((p) => p.show_on_home)
+    .sort((a, b) => a.sort_order - b.sort_order) // stable, so the newest-first order breaks ties
+    .slice(0, HOME_PROJECT_LIMIT);
+  return pinned.length > 0 ? pinned : projects.slice(0, HOME_PROJECT_LIMIT);
+}
 
 const capabilities = [
   {
@@ -64,7 +71,7 @@ const principles = [
 
 export default function HomeClient({ projects, errorMessage }: Props) {
   const allTags = useMemo(() => uniqueTags(projects), [projects]);
-  const latestProjects = projects.slice(0, HOME_PROJECT_LIMIT);
+  const homeProjects = pickHomeProjects(projects);
   const liveCount = projects.filter(isLive).length;
   const heroProject = projects.find((p) => p.image_url);
 
@@ -155,7 +162,7 @@ export default function HomeClient({ projects, errorMessage }: Props) {
       <section id="work" className="mx-auto max-w-6xl scroll-mt-28 px-6 py-20 md:px-10">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
-            <p className={eyebrow}>Latest work</p>
+            <p className={eyebrow}>Featured work</p>
             <h2 className={h2}>Things I&apos;ve built</h2>
           </div>
           {errorMessage ? (
@@ -170,14 +177,14 @@ export default function HomeClient({ projects, errorMessage }: Props) {
         </div>
 
         <div className="mt-10">
-          {latestProjects.length > 0 ? (
-            <ProjectGrid projects={latestProjects} featureFirst />
+          {homeProjects.length > 0 ? (
+            <ProjectGrid projects={homeProjects} featureFirst={false} />
           ) : (
             <div className="rounded-3xl border border-line bg-surface p-8 text-muted">Projects are coming soon.</div>
           )}
         </div>
 
-        {projects.length > HOME_PROJECT_LIMIT ? (
+        {projects.length > homeProjects.length ? (
           <div className="mt-10 flex justify-center">
             <Link href="/projects" className={`${btnSecondary} group`}>
               View all {projects.length} projects

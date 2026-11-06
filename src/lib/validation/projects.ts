@@ -51,6 +51,7 @@ export const projectBaseSchema = z
     // Optional publish + ordering controls
     is_published: z.boolean().optional(),
     sort_order: z.number().int().min(0).max(100000).optional(),
+    show_on_home: z.boolean().optional(),
 
     // Common portfolio fields
     tags: tagsSchema,

@@ -5,6 +5,7 @@ import {
   projectCreateSchema,
   projectUpdateSchema,
 } from "@/lib/validation/projects";
+import { HOME_PROJECT_LIMIT } from "@/lib/site";
 
 export const runtime = "edge";
 
@@ -102,6 +103,33 @@ export async function POST(req: NextRequest) {
     const validated = id
       ? projectUpdateSchema.parse(payload) // partial update allowed
       : projectCreateSchema.parse(payload); // create requires required fields
+
+    // Cap how many projects can be pinned to the home page.
+    if (validated.show_on_home) {
+      let pinned = supabase
+        .from("projects")
+        .select("id", { count: "exact", head: true })
+        .eq("show_on_home", true);
+      if (id) pinned = pinned.neq("id", id);
+      const { count, error: countError } = await pinned;
+
+      if (countError) {
+        const res = NextResponse.json({ error: countError.message }, { status: 400 });
+        return applyCookies(res, cookiesToSet);
+      }
+      if ((count ?? 0) >= HOME_PROJECT_LIMIT) {
+        const res = NextResponse.json(
+          {
+            error: {
+              code: "home_limit",
+              message: `Only ${HOME_PROJECT_LIMIT} projects can be on the home page. Remove one first.`,
+            },
+          },
+          { status: 422 },
+        );
+        return applyCookies(res, cookiesToSet);
+      }
+    }
 
     const result = id
       ? await supabase
