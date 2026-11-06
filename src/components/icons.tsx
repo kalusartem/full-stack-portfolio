@@ -42,6 +42,14 @@ export function ArrowDownIcon({ size = 16, className }: IconProps) {
   );
 }
 
+export function ArrowRightIcon({ size = 16, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" className={className} {...stroke}>
+      <path d="M5 12h14M13 6l6 6-6 6" />
+    </svg>
+  );
+}
+
 export function LayersIcon({ size = 20, className }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" className={className} {...stroke}>
