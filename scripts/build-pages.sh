@@ -17,6 +17,7 @@ cp -R .open-next/cache/. .pages/cdn-cgi/_next_cache/
 npx wrangler deploy --dry-run --outdir .pages/_worker.js
 mv .pages/_worker.js/worker.js .pages/_worker.js/index.js
 rm -f .pages/_worker.js/worker.js.map .pages/_worker.js/README.md
+node scripts/node-prefix.mjs .pages/_worker.js/index.js
 
 # Pages runs _worker.js for every request; let the build's static files bypass it like Workers assets do
 # (/favicon.ico too: served through the worker, the .ico bytes come out altered).
