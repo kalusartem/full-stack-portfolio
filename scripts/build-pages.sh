@@ -5,6 +5,15 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
+# Redirect-only build: with REDIRECT_TO set (the old full-stack-portfolio-2 project), skip the site build and
+# output a single _redirects file that 301s every path to that origin.
+if [ -n "${REDIRECT_TO:-}" ]; then
+  rm -rf .pages
+  mkdir -p .pages
+  echo "/* ${REDIRECT_TO%/}/:splat 301" > .pages/_redirects
+  exit 0
+fi
+
 npx opennextjs-cloudflare build
 
 rm -rf .pages
