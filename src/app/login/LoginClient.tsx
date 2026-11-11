@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import ThemeToggle from "@/components/ThemeToggle";
 import { createClient } from "@/lib/supabase-client";
@@ -8,8 +9,21 @@ import { createClient } from "@/lib/supabase-client";
 export default function LoginClient() {
   const searchParams = useSearchParams();
   const error = searchParams.get("error");
+  const [signingIn, setSigningIn] = useState(false);
+
+  // Coming back with the browser's back button restores this page from the bfcache with the spinner still on.
+  useEffect(() => {
+    const reset = (event: PageTransitionEvent) => {
+      if (event.persisted) setSigningIn(false);
+    };
+    window.addEventListener("pageshow", reset);
+    return () => window.removeEventListener("pageshow", reset);
+  }, []);
 
   const signIn = async () => {
+    if (signingIn) return;
+    setSigningIn(true);
+
     const supabase = createClient();
 
     const { data, error } = await supabase.auth.signInWithOAuth({
@@ -25,6 +39,7 @@ export default function LoginClient() {
       return;
     }
 
+    // The spinner stays on until the browser leaves for GitHub.
     window.location.href = data.url;
   };
 
@@ -113,16 +128,42 @@ export default function LoginClient() {
                 <button
                   type="button"
                   onClick={signIn}
-                  className="flex w-full cursor-pointer items-center justify-center gap-3 rounded-2xl bg-primary px-5 py-3.5 font-medium text-on-primary transition duration-300 hover:-translate-y-0.5 hover:scale-[1.01] hover:shadow-[0_10px_40px_var(--primary-glow)]"
+                  disabled={signingIn}
+                  aria-busy={signingIn}
+                  className="flex w-full cursor-pointer items-center justify-center gap-3 rounded-2xl bg-primary px-5 py-3.5 font-medium text-on-primary transition duration-300 hover:-translate-y-0.5 hover:scale-[1.01] hover:shadow-[0_10px_40px_var(--primary-glow)] disabled:cursor-wait disabled:opacity-80 disabled:hover:translate-y-0 disabled:hover:scale-100 disabled:hover:shadow-none"
                 >
-                  <svg
-                    aria-hidden="true"
-                    viewBox="0 0 24 24"
-                    className="h-5 w-5 fill-current"
-                  >
-                    <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.38 7.85 10.9.57.1.78-.25.78-.56 0-.27-.01-1.17-.02-2.12-3.19.69-3.87-1.35-3.87-1.35-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.75 1.18 1.75 1.18 1.02 1.75 2.68 1.24 3.33.95.1-.74.4-1.24.72-1.52-2.55-.29-5.24-1.28-5.24-5.68 0-1.25.45-2.27 1.18-3.08-.12-.29-.51-1.46.11-3.05 0 0 .96-.31 3.15 1.18A10.9 10.9 0 0 1 12 6.03c.97 0 1.95.13 2.86.38 2.18-1.49 3.14-1.18 3.14-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.83 1.18 3.08 0 4.41-2.69 5.39-5.25 5.67.41.35.77 1.03.77 2.08 0 1.5-.01 2.71-.01 3.08 0 .31.2.67.79.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" />
-                  </svg>
-                  Continue with GitHub
+                  {signingIn ? (
+                    <svg
+                      aria-hidden="true"
+                      viewBox="0 0 24 24"
+                      className="h-5 w-5 animate-spin"
+                      fill="none"
+                    >
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="9"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        className="opacity-25"
+                      />
+                      <path
+                        d="M21 12a9 9 0 0 0-9-9"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      aria-hidden="true"
+                      viewBox="0 0 24 24"
+                      className="h-5 w-5 fill-current"
+                    >
+                      <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.38 7.85 10.9.57.1.78-.25.78-.56 0-.27-.01-1.17-.02-2.12-3.19.69-3.87-1.35-3.87-1.35-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.75 1.18 1.75 1.18 1.02 1.75 2.68 1.24 3.33.95.1-.74.4-1.24.72-1.52-2.55-.29-5.24-1.28-5.24-5.68 0-1.25.45-2.27 1.18-3.08-.12-.29-.51-1.46.11-3.05 0 0 .96-.31 3.15 1.18A10.9 10.9 0 0 1 12 6.03c.97 0 1.95.13 2.86.38 2.18-1.49 3.14-1.18 3.14-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.83 1.18 3.08 0 4.41-2.69 5.39-5.25 5.67.41.35.77 1.03.77 2.08 0 1.5-.01 2.71-.01 3.08 0 .31.2.67.79.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" />
+                    </svg>
+                  )}
+                  {signingIn ? "Signing in…" : "Continue with GitHub"}
                 </button>
 
                 <div className="rounded-2xl border border-line bg-inset p-4 text-sm text-subtle">
