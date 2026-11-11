@@ -31,7 +31,7 @@ node scripts/node-prefix.mjs .pages/_worker.js/index.js
 # Pages runs _worker.js for every request; let the build's static files bypass it like Workers assets do
 # (/favicon.ico too: served through the worker, the .ico bytes come out altered).
 cat > .pages/_routes.json <<'JSON'
-{ "version": 1, "include": ["/*"], "exclude": ["/_next/static/*", "/BUILD_ID", "/favicon.ico"] }
+{ "version": 1, "include": ["/*"], "exclude": ["/_next/static/*", "/BUILD_ID", "/favicon.ico", "/google*.html"] }
 JSON
 
 # wrangler.jsonc describes a Worker, not a Pages project: in Cloudflare's build (CF_PAGES=1) remove it so Pages
