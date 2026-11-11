@@ -20,6 +20,13 @@ export const metadata: Metadata = {
     description,
     url: "/projects",
     locale: "en_US",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: `${site.name} | Full-Stack Developer` }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Projects | ${site.name}`,
+    description,
+    images: ["/opengraph-image"],
   },
 };
 
