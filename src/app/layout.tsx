@@ -23,10 +23,10 @@ export const metadata: Metadata = {
     follow: true,
     googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
   },
-  // Search Console HTML-tag verification token (optional): set NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION to enable.
-  ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION && {
-    verification: { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION },
-  }),
+  // Search Console HTML-tag verification (a public token, not a secret); NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION overrides it.
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ?? "C28tvp3MaHAP855M1HSBATj5XwJW8R9s8-o0cGM5pQM",
+  },
   openGraph: {
     type: "website",
     siteName: site.name,
