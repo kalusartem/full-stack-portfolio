@@ -45,33 +45,62 @@ async function errorText(res: Response) {
   const text = await res.text();
   try {
     const json = JSON.parse(text) as { error?: string | { message?: string } };
-    const message = typeof json.error === "string" ? json.error : json.error?.message;
+    const message =
+      typeof json.error === "string" ? json.error : json.error?.message;
     if (message) return message;
   } catch {}
   return text || res.statusText;
 }
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 22 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
-  },
-};
-
-const stagger = {
-  hidden: {},
-  show: {
-    transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.04,
-    },
-  },
-};
-
 function cn(...classes: Array<string | false | null | undefined>) {
   return classes.filter(Boolean).join(" ");
+}
+
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+
+// Uploaded images win over a pasted URL, matching what the public site renders.
+function storedImageUrl(
+  path: string | null | undefined,
+  url: string | null | undefined,
+) {
+  if (path && SUPABASE_URL)
+    return `${SUPABASE_URL}/storage/v1/object/public/project-images/${path}`;
+  return url || null;
+}
+
+function Thumb({
+  src,
+  alt,
+  className = "",
+}: {
+  src: string | null;
+  alt: string;
+  className?: string;
+}) {
+  const [failed, setFailed] = useState(false);
+  return (
+    <div
+      className={cn(
+        "relative overflow-hidden rounded-xl border border-line bg-field",
+        className,
+      )}
+    >
+      {src && !failed ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={src}
+          alt={alt}
+          loading="lazy"
+          onError={() => setFailed(true)}
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <div className="flex h-full w-full items-center justify-center px-2 text-center text-[11px] uppercase tracking-[0.18em] text-subtle">
+          {src ? "Image failed to load" : "No image"}
+        </div>
+      )}
+    </div>
+  );
 }
 
 function StatusBanner({ msg }: { msg: string }) {
@@ -84,7 +113,7 @@ function StatusBanner({ msg }: { msg: string }) {
         "rounded-2xl border px-4 py-3 text-sm backdrop-blur-xl",
         isError && "border-danger-line bg-danger-soft text-danger",
         isSuccess && "border-success-line bg-success-soft text-success",
-        !isError && !isSuccess && "border-line bg-surface text-soft"
+        !isError && !isSuccess && "border-line bg-surface text-soft",
       )}
     >
       {msg}
@@ -99,6 +128,37 @@ export default function AdminProjectsPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [msg, setMsg] = useState<string>("");
   const [imageFile, setImage] = useState<ImageState | null>(null);
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<
+    "all" | "published" | "drafts" | "home"
+  >("all");
+
+  // Preview of what will be saved: a newly chosen file, else the stored upload, else the pasted URL.
+  const pickedFile = imageFile?.file;
+  const localPreview = useMemo(
+    () => (pickedFile ? URL.createObjectURL(pickedFile) : null),
+    [pickedFile],
+  );
+  useEffect(() => {
+    return () => {
+      if (localPreview) URL.revokeObjectURL(localPreview);
+    };
+  }, [localPreview]);
+  const previewSrc =
+    localPreview ?? storedImageUrl(imageFile?.path, form.image_url.trim());
+
+  const visibleProjects = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return projects.filter((p) => {
+      if (statusFilter === "published" && !p.is_published) return false;
+      if (statusFilter === "drafts" && p.is_published) return false;
+      if (statusFilter === "home" && !p.show_on_home) return false;
+      if (!q) return true;
+      return [p.title, p.description, ...(p.tags ?? [])].some((v) =>
+        v.toLowerCase().includes(q),
+      );
+    });
+  }, [projects, query, statusFilter]);
 
   const tagsArray = useMemo(() => {
     return form.tags
@@ -118,9 +178,13 @@ export default function AdminProjectsPage() {
   }, [projects]);
 
   // Only send show_on_home once the column exists, so saves keep working before the migration runs.
-  const homeColumnReady = projects.length === 0 || projects.some((project) => "show_on_home" in project);
+  const homeColumnReady =
+    projects.length === 0 ||
+    projects.some((project) => "show_on_home" in project);
   const homeFull = summary.onHome >= HOME_PROJECT_LIMIT;
-  const editingOnHome = projects.some((project) => project.id === editingId && project.show_on_home);
+  const editingOnHome = projects.some(
+    (project) => project.id === editingId && project.show_on_home,
+  );
 
   const load = async () => {
     setLoading(true);
@@ -274,9 +338,14 @@ export default function AdminProjectsPage() {
       return;
     }
 
-    if (editingId === p.id) setForm((f) => ({ ...f, show_on_home: !p.show_on_home }));
+    if (editingId === p.id)
+      setForm((f) => ({ ...f, show_on_home: !p.show_on_home }));
     await load();
-    setMsg(p.show_on_home ? `Saved ✅ ${p.title} removed from the home page.` : `Saved ✅ ${p.title} added to the home page.`);
+    setMsg(
+      p.show_on_home
+        ? `Saved ✅ ${p.title} removed from the home page.`
+        : `Saved ✅ ${p.title} added to the home page.`,
+    );
   };
 
   const del = async (id: string, image_path: string | null) => {
@@ -299,22 +368,19 @@ export default function AdminProjectsPage() {
   };
 
   return (
-    <main
-      className="space-y-8"
-     
-     
-     
-    >
-      <section
-       
-        className="rounded-[2rem] border border-line bg-surface p-6 backdrop-blur-xl shadow-[0_18px_60px_var(--shadow)] md:p-8"
-      >
+    <main className="space-y-8">
+      <section className="rounded-[2rem] border border-line bg-surface p-6 backdrop-blur-xl shadow-[0_18px_60px_var(--shadow)] md:p-8">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="text-xs uppercase tracking-[0.28em] text-subtle">Project manager</p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-5xl">Manage portfolio projects</h1>
+            <p className="text-xs uppercase tracking-[0.28em] text-subtle">
+              Project manager
+            </p>
+            <h1 className="mt-3 text-3xl font-semibold tracking-tight md:text-5xl">
+              Manage portfolio projects
+            </h1>
             <p className="mt-4 max-w-2xl text-sm leading-7 text-muted md:text-base">
-              Create, edit, reorder, publish, and clean up your work from one modern admin screen.
+              Create, edit, reorder, publish, and clean up your work from one
+              modern admin screen.
             </p>
           </div>
 
@@ -323,11 +389,19 @@ export default function AdminProjectsPage() {
               { label: "Total", value: summary.total },
               { label: "Published", value: summary.published },
               { label: "Drafts", value: summary.drafts },
-              { label: "Home page", value: `${summary.onHome}/${HOME_PROJECT_LIMIT}` },
+              {
+                label: "Home page",
+                value: `${summary.onHome}/${HOME_PROJECT_LIMIT}`,
+              },
             ].map((item) => (
-              <div key={item.label} className="rounded-2xl border border-line bg-inset p-4 text-center">
+              <div
+                key={item.label}
+                className="rounded-2xl border border-line bg-inset p-4 text-center"
+              >
                 <div className="text-2xl font-semibold">{item.value}</div>
-                <div className="mt-1 text-xs uppercase tracking-[0.2em] text-subtle">{item.label}</div>
+                <div className="mt-1 text-xs uppercase tracking-[0.2em] text-subtle">
+                  {item.label}
+                </div>
               </div>
             ))}
           </div>
@@ -335,21 +409,22 @@ export default function AdminProjectsPage() {
 
         <Breadcrumbs
           className="mt-6"
-          items={[
-            { label: "Admin", href: "/admin" },
-            { label: "Projects" },
-          ]}
+          items={[{ label: "Admin", href: "/admin" }, { label: "Projects" }]}
         />
       </section>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(320px,0.95fr)]">
         <section
-         
-          className="rounded-[2rem] border border-line bg-surface p-6 backdrop-blur-xl md:p-8"
+          className={cn(
+            "rounded-[2rem] border bg-surface p-6 backdrop-blur-xl md:p-8 xl:sticky xl:top-6 xl:self-start",
+            editingId ? "border-highlight-line" : "border-line",
+          )}
         >
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-sm uppercase tracking-[0.25em] text-subtle">Editor</p>
+              <p className="text-sm uppercase tracking-[0.25em] text-subtle">
+                Editor
+              </p>
               <h2 className="mt-3 text-2xl font-semibold tracking-tight">
                 {editingId ? "Edit project" : "Create new project"}
               </h2>
@@ -368,7 +443,9 @@ export default function AdminProjectsPage() {
                 className="rounded-2xl border border-line bg-field px-4 py-3 text-foreground outline-none transition placeholder:text-faint focus:border-line-focus"
                 placeholder="Modern AI dashboard"
                 value={form.title}
-                onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, title: e.target.value }))
+                }
               />
             </div>
 
@@ -378,7 +455,9 @@ export default function AdminProjectsPage() {
                 className="min-h-32 rounded-2xl border border-line bg-field px-4 py-3 text-foreground outline-none transition placeholder:text-faint focus:border-line-focus"
                 placeholder="Describe the project, outcome, stack, and why it matters."
                 value={form.description}
-                onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, description: e.target.value }))
+                }
               />
             </div>
 
@@ -388,12 +467,17 @@ export default function AdminProjectsPage() {
                 className="rounded-2xl border border-line bg-field px-4 py-3 text-foreground outline-none transition placeholder:text-faint focus:border-line-focus"
                 placeholder="nextjs, supabase, framer-motion"
                 value={form.tags}
-                onChange={(e) => setForm((f) => ({ ...f, tags: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, tags: e.target.value }))
+                }
               />
               {tagsArray.length > 0 && (
                 <div className="flex flex-wrap gap-2 pt-1">
                   {tagsArray.map((tag) => (
-                    <span key={tag} className="rounded-full border border-line bg-surface px-3 py-1 text-xs text-soft">
+                    <span
+                      key={tag}
+                      className="rounded-full border border-line bg-surface px-3 py-1 text-xs text-soft"
+                    >
                       {tag}
                     </span>
                   ))}
@@ -408,7 +492,9 @@ export default function AdminProjectsPage() {
                   className="rounded-2xl border border-line bg-field px-4 py-3 text-foreground outline-none transition placeholder:text-faint focus:border-line-focus"
                   placeholder="https://yourproject.com"
                   value={form.live_url}
-                  onChange={(e) => setForm((f) => ({ ...f, live_url: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, live_url: e.target.value }))
+                  }
                 />
               </div>
               <div className="grid gap-2">
@@ -417,7 +503,9 @@ export default function AdminProjectsPage() {
                   className="rounded-2xl border border-line bg-field px-4 py-3 text-foreground outline-none transition placeholder:text-faint focus:border-line-focus"
                   placeholder="https://github.com/..."
                   value={form.repo_url}
-                  onChange={(e) => setForm((f) => ({ ...f, repo_url: e.target.value }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, repo_url: e.target.value }))
+                  }
                 />
               </div>
             </div>
@@ -428,70 +516,121 @@ export default function AdminProjectsPage() {
                 className="rounded-2xl border border-line bg-field px-4 py-3 text-foreground outline-none transition placeholder:text-faint focus:border-line-focus"
                 placeholder="Optional external image URL"
                 value={form.image_url}
-                onChange={(e) => setForm((f) => ({ ...f, image_url: e.target.value }))}
+                onChange={(e) =>
+                  setForm((f) => ({ ...f, image_url: e.target.value }))
+                }
               />
             </div>
 
             <div className="rounded-[1.5rem] border border-dashed border-line-strong bg-inset p-5">
-              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                <div>
-                  <p className="text-sm font-medium text-foreground">Project image</p>
-                  <p className="mt-1 text-sm text-subtle">Upload a replacement image or keep the current file attached.</p>
+              <div className="flex flex-col gap-4 sm:flex-row">
+                <Thumb
+                  src={previewSrc}
+                  alt="Project image preview"
+                  className="aspect-video w-full shrink-0 sm:w-56"
+                />
+                <div className="flex flex-1 flex-col justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">
+                      Project image
+                    </p>
+                    <p className="mt-1 text-sm text-subtle">
+                      {imageFile?.file
+                        ? "New image selected; it replaces the current one when you save."
+                        : previewSrc
+                          ? "Current image. Upload a replacement or keep it."
+                          : "Upload an image or paste an Image URL above."}
+                    </p>
+                    {imageFile && (
+                      <p className="mt-2 truncate text-xs text-muted">
+                        {imageFile.name || imageFile.path || "Attached image"}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <label className="inline-flex cursor-pointer items-center justify-center rounded-2xl border border-line bg-surface px-4 py-2.5 text-sm font-medium text-foreground transition hover:bg-surface-strong">
+                      {previewSrc ? "Replace image" : "Choose image"}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const nextFile = e.target.files?.[0] ?? undefined;
+                          setImage((current) => ({
+                            ...(current ?? {}),
+                            file: nextFile,
+                            name: nextFile?.name ?? current?.name,
+                          }));
+                          e.target.value = "";
+                        }}
+                      />
+                    </label>
+                    {imageFile?.file && (
+                      <button
+                        type="button"
+                        className="rounded-2xl border border-line bg-surface px-4 py-2.5 text-sm text-soft transition hover:bg-surface-strong"
+                        onClick={() =>
+                          setImage((current) => ({
+                            ...(current ?? {}),
+                            file: undefined,
+                            name: undefined,
+                          }))
+                        }
+                      >
+                        Discard new image
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <label className="inline-flex cursor-pointer items-center justify-center rounded-2xl border border-line bg-surface px-4 py-3 text-sm font-medium text-foreground transition hover:bg-surface-strong">
-                  Choose image
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => {
-                      const nextFile = e.target.files?.[0] ?? undefined;
-                      setImage((current) => ({
-                        ...(current ?? {}),
-                        file: nextFile,
-                        name: nextFile?.name,
-                      }));
-                    }}
-                  />
-                </label>
               </div>
-
-              {imageFile && (
-                <p className="mt-3 text-sm text-muted">
-                  Selected: <span className="text-foreground">{imageFile.name || imageFile.path || "Attached image"}</span>
-                </p>
-              )}
             </div>
 
             <div className="grid gap-4 md:grid-cols-2">
               <label className="flex items-center justify-between rounded-2xl border border-line bg-inset px-4 py-3">
                 <span>
-                  <span className="block text-sm font-medium text-foreground">Published</span>
-                  <span className="mt-1 block text-xs text-subtle">Show this project on the live portfolio.</span>
+                  <span className="block text-sm font-medium text-foreground">
+                    Published
+                  </span>
+                  <span className="mt-1 block text-xs text-subtle">
+                    Show this project on the live portfolio.
+                  </span>
                 </span>
                 <input
                   type="checkbox"
                   checked={form.is_published}
-                  onChange={(e) => setForm((f) => ({ ...f, is_published: e.target.checked }))}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, is_published: e.target.checked }))
+                  }
                   className="h-5 w-5 rounded border-line-strong accent-primary"
                 />
               </label>
 
               <label className="rounded-2xl border border-line bg-inset px-4 py-3">
-                <span className="block text-sm font-medium text-foreground">Sort order</span>
-                <span className="mt-1 block text-xs text-subtle">Lower numbers can be used to prioritize featured work.</span>
+                <span className="block text-sm font-medium text-foreground">
+                  Sort order
+                </span>
+                <span className="mt-1 block text-xs text-subtle">
+                  Lower numbers can be used to prioritize featured work.
+                </span>
                 <input
                   type="number"
                   className="mt-3 w-28 rounded-xl border border-line bg-surface px-3 py-2 text-foreground outline-none focus:border-line-focus"
                   value={form.sort_order}
-                  onChange={(e) => setForm((f) => ({ ...f, sort_order: Number(e.target.value) }))}
+                  onChange={(e) =>
+                    setForm((f) => ({
+                      ...f,
+                      sort_order: Number(e.target.value),
+                    }))
+                  }
                 />
               </label>
 
               {homeColumnReady && (
                 <label className="flex items-center justify-between rounded-2xl border border-line bg-inset px-4 py-3 md:col-span-2">
                   <span>
-                    <span className="block text-sm font-medium text-foreground">Show on home page</span>
+                    <span className="block text-sm font-medium text-foreground">
+                      Show on home page
+                    </span>
                     <span className="mt-1 block text-xs text-subtle">
                       {homeFull && !editingOnHome && !form.show_on_home
                         ? `The home page already has ${HOME_PROJECT_LIMIT} projects. Remove one to add this.`
@@ -502,7 +641,9 @@ export default function AdminProjectsPage() {
                     type="checkbox"
                     checked={form.show_on_home}
                     disabled={homeFull && !editingOnHome && !form.show_on_home}
-                    onChange={(e) => setForm((f) => ({ ...f, show_on_home: e.target.checked }))}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, show_on_home: e.target.checked }))
+                    }
                     className="h-5 w-5 rounded border-line-strong accent-primary disabled:opacity-40"
                   />
                 </label>
@@ -530,14 +671,15 @@ export default function AdminProjectsPage() {
           </div>
         </section>
 
-        <section
-         
-          className="rounded-[2rem] border border-line bg-surface p-6 backdrop-blur-xl md:p-8"
-        >
+        <section className="rounded-[2rem] border border-line bg-surface p-6 backdrop-blur-xl md:p-8">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-sm uppercase tracking-[0.25em] text-subtle">Inventory</p>
-              <h2 className="mt-3 text-2xl font-semibold tracking-tight">Existing projects</h2>
+              <p className="text-sm uppercase tracking-[0.25em] text-subtle">
+                Inventory
+              </p>
+              <h2 className="mt-3 text-2xl font-semibold tracking-tight">
+                Existing projects
+              </h2>
             </div>
             <button
               className="rounded-2xl border border-line bg-surface px-4 py-2 text-sm text-soft transition hover:bg-surface-strong"
@@ -547,11 +689,47 @@ export default function AdminProjectsPage() {
             </button>
           </div>
 
-          <div className="mt-6 space-y-4">
+          <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <input
+              type="search"
+              aria-label="Search projects"
+              placeholder="Search title, description or tag"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="w-full rounded-2xl border border-line bg-field px-4 py-2.5 text-sm text-foreground outline-none transition placeholder:text-faint focus:border-line-focus"
+            />
+            <div
+              className="flex shrink-0 gap-1 rounded-2xl border border-line bg-inset p-1"
+              role="group"
+              aria-label="Filter projects"
+            >
+              {(["all", "published", "drafts", "home"] as const).map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  aria-pressed={statusFilter === key}
+                  onClick={() => setStatusFilter(key)}
+                  className={cn(
+                    "rounded-xl px-3 py-1.5 text-xs font-medium capitalize transition",
+                    statusFilter === key
+                      ? "bg-primary text-on-primary"
+                      : "text-soft hover:bg-surface-strong",
+                  )}
+                >
+                  {key}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-5 space-y-4">
             {loading ? (
               <div className="space-y-3">
                 {[1, 2, 3].map((item) => (
-                  <div key={item} className="animate-pulse rounded-[1.5rem] border border-line bg-inset p-5">
+                  <div
+                    key={item}
+                    className="animate-pulse rounded-[1.5rem] border border-line bg-inset p-5"
+                  >
                     <div className="h-5 w-32 rounded bg-surface-strong" />
                     <div className="mt-3 h-4 w-full rounded bg-surface" />
                     <div className="mt-2 h-4 w-2/3 rounded bg-surface" />
@@ -562,84 +740,104 @@ export default function AdminProjectsPage() {
               <div className="rounded-[1.5rem] border border-dashed border-line-strong bg-inset p-6 text-center text-subtle">
                 No projects yet. Create your first one in the editor.
               </div>
+            ) : visibleProjects.length === 0 ? (
+              <div className="rounded-[1.5rem] border border-dashed border-line-strong bg-inset p-6 text-center text-subtle">
+                No projects match your search or filter.
+              </div>
             ) : (
               <div className="space-y-4">
-                {projects.map((p) => (
+                {visibleProjects.map((p) => (
                   <div
                     key={p.id}
-                   
                     className="rounded-[1.5rem] border border-line bg-inset p-5 transition hover:border-line-hover hover:bg-surface-strong"
                   >
-                    <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                      <div>
-                        <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="text-lg font-semibold text-foreground">{p.title}</h3>
-                          <span
-                            className={cn(
-                              "rounded-full px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.2em]",
-                              p.is_published
-                                ? "bg-success-soft text-success"
-                                : "bg-surface-strong text-muted"
-                            )}
-                          >
-                            {p.is_published ? "Published" : "Draft"}
-                          </span>
-                          {p.show_on_home && (
-                            <span className="rounded-full bg-accent-soft px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.2em] text-accent">
-                              Home page
+                    <div className="flex flex-col gap-4 sm:flex-row">
+                      <Thumb
+                        src={storedImageUrl(p.image_path, p.image_url)}
+                        alt={`${p.title} preview`}
+                        className="aspect-video w-full shrink-0 sm:w-40 lg:w-44"
+                      />
+                      <div className="flex min-w-0 flex-1 flex-col gap-4">
+                        <div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <h3 className="text-lg font-semibold text-foreground">
+                              {p.title}
+                            </h3>
+                            <span
+                              className={cn(
+                                "rounded-full px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.2em]",
+                                p.is_published
+                                  ? "bg-success-soft text-success"
+                                  : "bg-surface-strong text-muted",
+                              )}
+                            >
+                              {p.is_published ? "Published" : "Draft"}
                             </span>
-                          )}
-                        </div>
-                        <p className="mt-2 max-w-2xl text-sm leading-7 text-muted">{p.description}</p>
-
-                        <div className="mt-4 flex flex-wrap gap-2">
-                          {(p.tags ?? []).length > 0 ? (
-                            p.tags.map((tag) => (
-                              <span key={`${p.id}-${tag}`} className="rounded-full border border-line bg-surface px-3 py-1 text-xs text-soft">
-                                {tag}
+                            {p.show_on_home && (
+                              <span className="rounded-full bg-accent-soft px-2.5 py-1 text-[11px] font-medium uppercase tracking-[0.2em] text-accent">
+                                Home page
                               </span>
-                            ))
-                          ) : (
-                            <span className="text-xs text-subtle">No tags</span>
+                            )}
+                          </div>
+                          <p className="mt-2 line-clamp-3 text-sm leading-6 text-muted">
+                            {p.description}
+                          </p>
+
+                          <div className="mt-4 flex flex-wrap gap-2">
+                            {(p.tags ?? []).length > 0 ? (
+                              p.tags.map((tag) => (
+                                <span
+                                  key={`${p.id}-${tag}`}
+                                  className="rounded-full border border-line bg-surface px-3 py-1 text-xs text-soft"
+                                >
+                                  {tag}
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-xs text-subtle">
+                                No tags
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="mt-4 flex flex-wrap gap-4 text-xs uppercase tracking-[0.18em] text-subtle">
+                            <span>Sort {p.sort_order}</span>
+                            {p.live_url && <span>Live linked</span>}
+                            {p.repo_url && <span>Repo linked</span>}
+                          </div>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2">
+                          {homeColumnReady && (
+                            <button
+                              className="rounded-2xl border border-line bg-surface px-4 py-2 text-sm font-medium text-foreground transition hover:bg-surface-strong disabled:cursor-not-allowed disabled:opacity-40"
+                              onClick={() => toggleHome(p)}
+                              disabled={!p.show_on_home && homeFull}
+                              aria-pressed={Boolean(p.show_on_home)}
+                              title={
+                                !p.show_on_home && homeFull
+                                  ? `The home page already has ${HOME_PROJECT_LIMIT} projects`
+                                  : undefined
+                              }
+                            >
+                              {p.show_on_home
+                                ? "Remove from home"
+                                : "Add to home"}
+                            </button>
                           )}
-                        </div>
-
-                        <div className="mt-4 flex flex-wrap gap-4 text-xs uppercase tracking-[0.18em] text-subtle">
-                          <span>Sort {p.sort_order}</span>
-                          {p.live_url && <span>Live linked</span>}
-                          {p.repo_url && <span>Repo linked</span>}
-                          {p.image_path || p.image_url ? <span>Image attached</span> : <span>No image</span>}
-                        </div>
-                      </div>
-
-                      <div className="flex shrink-0 flex-wrap gap-2">
-                        {homeColumnReady && (
                           <button
-                            className="rounded-2xl border border-line bg-surface px-4 py-2 text-sm font-medium text-foreground transition hover:bg-surface-strong disabled:cursor-not-allowed disabled:opacity-40"
-                            onClick={() => toggleHome(p)}
-                            disabled={!p.show_on_home && homeFull}
-                            aria-pressed={Boolean(p.show_on_home)}
-                            title={
-                              !p.show_on_home && homeFull
-                                ? `The home page already has ${HOME_PROJECT_LIMIT} projects`
-                                : undefined
-                            }
+                            className="rounded-2xl border border-line bg-surface px-4 py-2 text-sm font-medium text-foreground transition hover:bg-surface-strong"
+                            onClick={() => edit(p)}
                           >
-                            {p.show_on_home ? "Remove from home" : "Add to home"}
+                            Edit
                           </button>
-                        )}
-                        <button
-                          className="rounded-2xl border border-line bg-surface px-4 py-2 text-sm font-medium text-foreground transition hover:bg-surface-strong"
-                          onClick={() => edit(p)}
-                        >
-                          Edit
-                        </button>
-                        <button
-                          className="rounded-2xl bg-danger-solid px-4 py-2 text-sm font-medium text-white transition hover:bg-danger-solid-hover"
-                          onClick={() => del(p.id, p.image_path)}
-                        >
-                          Delete
-                        </button>
+                          <button
+                            className="rounded-2xl bg-danger-solid px-4 py-2 text-sm font-medium text-white transition hover:bg-danger-solid-hover"
+                            onClick={() => del(p.id, p.image_path)}
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
