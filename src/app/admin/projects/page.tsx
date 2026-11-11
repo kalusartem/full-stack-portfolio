@@ -527,7 +527,7 @@ export default function AdminProjectsPage() {
                 <Thumb
                   src={previewSrc}
                   alt="Project image preview"
-                  className="aspect-video w-full shrink-0 sm:w-56"
+                  className="aspect-video w-full shrink-0 self-start sm:w-56"
                 />
                 <div className="flex flex-1 flex-col justify-between gap-3">
                   <div>
@@ -755,7 +755,7 @@ export default function AdminProjectsPage() {
                       <Thumb
                         src={storedImageUrl(p.image_path, p.image_url)}
                         alt={`${p.title} preview`}
-                        className="aspect-video w-full shrink-0 sm:w-40 lg:w-44"
+                        className="aspect-video w-full shrink-0 self-start sm:w-40 lg:w-44"
                       />
                       <div className="flex min-w-0 flex-1 flex-col gap-4">
                         <div>
