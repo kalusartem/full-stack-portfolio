@@ -15,6 +15,18 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
   authors: [{ name: site.name, url: site.url }],
   creator: site.name,
+  applicationName: site.name,
+  keywords: ["full-stack developer", "Next.js", "React", "TypeScript", "Supabase", "AI automation", "portfolio"],
+  category: "technology",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
+  },
+  // Search Console HTML-tag verification token (optional): set NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION to enable.
+  ...(process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION && {
+    verification: { google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION },
+  }),
   openGraph: {
     type: "website",
     siteName: site.name,
