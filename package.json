@@ -9,7 +9,7 @@
     "lint": "eslint",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "build:pages": "bash scripts/build-pages.sh",
-    "deploy:pages": "bash scripts/build-pages.sh && wrangler pages deploy .pages --project-name full-stack-portfolio-2 --branch main"
+    "deploy:pages": "bash scripts/build-pages.sh && wrangler pages deploy .pages --project-name fullstackportfolio --branch main"
   },
   "dependencies": {
     "@supabase/ssr": "^0.8.0",
