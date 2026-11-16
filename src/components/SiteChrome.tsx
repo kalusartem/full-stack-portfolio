@@ -138,9 +138,17 @@ export function SiteShell({ onHome, children }: { onHome: boolean; children: Rea
       <footer className="relative z-10 border-t border-line px-6 py-8 md:px-10">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 text-sm text-subtle">
           <p>
-            © {new Date().getFullYear()} {site.name} · Built with Next.js &amp; Supabase
+            © {new Date().getFullYear()} Mokahub LLC · Built with Next.js &amp; Supabase
           </p>
-          <SocialButtons />
+          <div className="flex items-center gap-5">
+            <Link href="/privacy" className="transition hover:text-foreground">
+              Privacy
+            </Link>
+            <Link href="/terms" className="transition hover:text-foreground">
+              Terms
+            </Link>
+            <SocialButtons />
+          </div>
         </div>
       </footer>
     </div>
