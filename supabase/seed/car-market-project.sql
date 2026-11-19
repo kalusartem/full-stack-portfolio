@@ -6,7 +6,7 @@ select
   'Car Market',
   'A full-stack used-car marketplace built with React 19, Vite, Tailwind v4, and Supabase Postgres with row level security, featuring VIN decoding via NHTSA vPIC, radius search by ZIP code, favorites, and buyer-seller messaging. It ships with light and dark themes and optional TOTP multi-factor authentication.',
   array['React', 'TypeScript', 'Supabase', 'Postgres + RLS', 'Tailwind CSS']::text[],
-  'https://car-market-1fq.pages.dev/',
+  'https://car-market-app.pages.dev/',
   'https://github.com/kalusartem/Car-Market',
   true,
   0
