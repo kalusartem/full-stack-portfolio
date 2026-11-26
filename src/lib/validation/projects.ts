@@ -28,7 +28,7 @@ const nonEmptyString = (label: string, max: number) =>
     .min(1, `${label} is required`)
     .max(max, `${label} must be at most ${max} characters`);
 
-const tagsSchema = z
+const tagsArray = z
   .array(
     z
       .string()
@@ -36,8 +36,8 @@ const tagsSchema = z
       .min(1, "Tags cannot be empty")
       .max(40, "Tags must be at most 40 characters"),
   )
-  .max(25, "Too many tags")
-  .default([]);
+  .max(25, "Too many tags");
+const tagsSchema = tagsArray.default([]);
 
 /**
  * Fields allowed to be created/updated from the admin API.
@@ -101,6 +101,9 @@ export const projectCreateSchema = projectBaseSchema;
  * Allows partial updates but forbids empty patch objects.
  */
 export const projectUpdateSchema = projectBaseSchema
+  // No default for tags here: in Zod 4 a default still applies inside .partial(), so every PATCH that left tags
+  // out would reset them to [] (and an empty patch would pass the check below).
+  .extend({ tags: tagsArray })
   .partial()
   .refine((obj) => Object.keys(obj).length > 0, {
     message: "At least one field must be provided",
