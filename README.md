@@ -156,6 +156,24 @@ Variables and secrets (`NEXT_PUBLIC_*`, `RESEND_API_KEY`, `TURNSTILE_SECRET_KEY`
 compatibility settings (`nodejs_compat`) are in the Pages dashboard. `NEXT_PUBLIC_*` values are baked in at build
 time. The pages that read the database (`/`, `/projects`) render on every request (`force-dynamic`).
 
+## Seeding projects
+
+`supabase/seed/*.sql` add the portfolio's projects to `public.projects` (one file per project, plus `games.sql` for
+the browser games). Nothing applies them automatically: open the Supabase SQL editor for the shared project, paste a
+file and run it. Each insert is skipped when a row with the same title (or the same live URL) already exists, so
+re-running a file, or running one for a project added through `/admin/projects`, inserts nothing. They don't update
+existing rows; edit those in the admin. New rows are published with `sort_order` 0 and stay off the home page until
+"Show on home" is switched on in the admin (at most 3).
+
+| File | Projects |
+| --- | --- |
+| `car-market-project.sql` | Car Market |
+| `homefinder.sql` | HomeFinder |
+| `diffbridge.sql` | Diffbridge |
+| `the-long-chart.sql` | The Long Chart |
+| `change-set-helper.sql` | Change Set Helper (no live URL until it's on the Chrome Web Store) |
+| `games.sql` | Sunburn County, Trial Racer, Dustfront, Corsairs of the Archipelago |
+
 ## Testing
 
 ```bash

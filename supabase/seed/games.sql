@@ -1,8 +1,10 @@
--- Adds the "Sunburn County" and "Trial Racer" browser games to the portfolio. Idempotent: each is skipped if a project with that title exists.
+-- Adds the browser games to the portfolio: Sunburn County, Trial Racer, Dustfront and Corsairs of the Archipelago.
+-- Idempotent: each is skipped if a project with that title (or, for the last two, that live URL) exists.
 -- NOT applied automatically: run it yourself in the Supabase SQL editor (project: portfolio, schema: public).
--- Both projects were added through the admin on 2026-11-05 with these values, so running it now inserts nothing.
+-- Sunburn County and Trial Racer were added through the admin on 2026-11-05 with these values, and Dustfront is
+-- there as "Dustfront - FPS Game", so running it now only inserts Corsairs of the Archipelago.
 -- Columns follow src/lib/validation/projects.ts; `id` and `created_at` are assumed to have table defaults.
--- Both repositories are private, so repo_url is left empty.
+-- All the repositories are private, so repo_url is left empty.
 insert into public.projects (title, description, tags, live_url, image_url, is_published, sort_order)
 select
   'Sunburn County',
@@ -24,3 +26,29 @@ select
   true,
   0
 where not exists (select 1 from public.projects where title = 'Trial Racer');
+
+insert into public.projects (title, description, tags, live_url, is_published, sort_order)
+select
+  'Dustfront',
+  'A round-based tactical first-person shooter in the browser, built with Three.js ES modules and no build step. Solo demolition rounds pit you against bots that carry, plant and defend the C4 or guard hostages, with an economy, a buy menu and team-specific weapons across bomb, hostage-rescue and elimination maps. The bundled Node server hosts online Terrorists vs Military matches over WebSocket, and an HTML5 build is on itch.io.',
+  array['three.js', 'javascript', 'webgl', 'websocket', 'game-dev', 'multiplayer']::text[],
+  'https://dustfront.mokahub.duckdns.org/',
+  true,
+  0
+where not exists (
+  select 1 from public.projects
+  where title ilike 'Dustfront%' or live_url like 'https://dustfront.mokahub.duckdns.org%'
+);
+
+insert into public.projects (title, description, tags, live_url, is_published, sort_order)
+select
+  'Corsairs of the Archipelago',
+  'A multiplayer age-of-sail game in the browser: sail a Caribbean archipelago, trade between colonies, fight broadside battles, board and capture prizes, and take contracts and bounties alongside other captains in one persistent world. Captains are spread over several copies of the archipelago ("seas") that open and close with demand, so no port gets crowded on a small server. Built with Three.js and a Node WebSocket server, with Sketchfab, Mixamo and Poly Haven assets credited in game. It runs on an Oracle Cloud server and redeploys on every push to main once the tests pass.',
+  array['three.js', 'javascript', 'websocket', 'game-dev', 'multiplayer', 'oracle-cloud']::text[],
+  'https://corsairs.mokahub.duckdns.org/',
+  true,
+  0
+where not exists (
+  select 1 from public.projects
+  where title ilike 'Corsairs%' or live_url like 'https://corsairs.mokahub.duckdns.org%'
+);
