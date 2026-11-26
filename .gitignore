@@ -46,3 +46,7 @@ next-env.d.ts
 .wrangler
 .pages
 .dev.vars*
+
+# Written and re-added by `next dev` when it detects an AI coding agent
+# (node_modules/next/dist/server/lib/generate-agent-files.js)
+AGENTS.md
