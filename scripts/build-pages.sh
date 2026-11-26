@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Builds the site for Cloudflare Pages with OpenNext (advanced mode: .pages/_worker.js/index.js + static assets).
-# The Pages project runs `npm run build:pages` with output directory `.pages` on every push (main is production,
-# other branches get preview URLs); `npm run deploy:pages` does the same from this machine.
+# `fullstackportfolio` is a direct-upload Pages project: `npm run deploy:pages` builds with this script and uploads
+# .pages. The old git-connected `full-stack-portfolio-2` project also runs it, with REDIRECT_TO set (below).
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -13,6 +13,10 @@ if [ -n "${REDIRECT_TO:-}" ]; then
   echo "/* ${REDIRECT_TO%/}/:splat 301" > .pages/_redirects
   exit 0
 fi
+
+# Canonical URLs, Open Graph tags and the sitemap are built from this (the production URL unless already set);
+# src/lib/site.ts fails the build without it.
+export NEXT_PUBLIC_SITE_URL="${NEXT_PUBLIC_SITE_URL:-https://fullstackportfolio.pages.dev}"
 
 npx opennextjs-cloudflare build
 
