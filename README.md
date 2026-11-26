@@ -4,7 +4,7 @@ A production-style **full‑stack portfolio application** built to demonstrate s
 
 This project focuses on **end‑to‑end ownership**: authentication, authorization, data validation, secure server APIs, and maintainable architecture.
 
-https://full-stack-portfolio-2.pages.dev/
+https://fullstackportfolio.pages.dev/
 
 ---
 
@@ -39,7 +39,7 @@ https://full-stack-portfolio-2.pages.dev/
 ```mermaid
 flowchart TD
   U[User Browser] --> NX[Next.js App Router]
-  NX --> MW[Middleware]
+  NX --> MW[Proxy]
   NX --> API[Route Handlers]
   API --> SB[(Supabase)]
   SB --> DB[(Postgres)]
@@ -49,7 +49,7 @@ flowchart TD
 ### Key Ideas
 
 - **Server-first design**: data fetching and mutations happen on the server
-- **Middleware for UX**, RLS for real security
+- **Proxy (`src/proxy.ts`, formerly middleware) for UX**, RLS for real security
 - **Strict API boundaries** using validation + whitelisting
 - **Clear separation** between UI, API, and data access
 
@@ -137,10 +137,20 @@ npm run dev
 
 ## Deploy (Cloudflare Pages)
 
-The site is the `full-stack-portfolio-2` Cloudflare Pages project (https://full-stack-portfolio-2.pages.dev), built
-with [OpenNext](https://opennext.js.org/cloudflare) and connected to this repository: every push builds and deploys
-(`main` to production, other branches to preview URLs). Build command `npm run build:pages`, output directory
-`.pages`; `npm run deploy:pages` deploys from this machine and `npm run preview` runs the Cloudflare build locally.
+The site is the `fullstackportfolio` Cloudflare Pages project (https://fullstackportfolio.pages.dev), built with
+[OpenNext](https://opennext.js.org/cloudflare). It is a **direct-upload** project: pushing to GitHub does not deploy
+it. To deploy, run from this machine (logged in with `npx wrangler login`):
+
+```bash
+npm run deploy:pages
+# = bash scripts/build-pages.sh && wrangler pages deploy .pages --project-name fullstackportfolio --branch main
+```
+
+`scripts/build-pages.sh` sets `NEXT_PUBLIC_SITE_URL` to the production URL (the build fails without it) and writes the
+worker and static files to `.pages`. `npm run preview` runs the Cloudflare build locally.
+
+The old `full-stack-portfolio-2` project (https://full-stack-portfolio-2.pages.dev) still builds from git, but with
+`REDIRECT_TO` set it only 301s every path to the new URL.
 
 Variables and secrets (`NEXT_PUBLIC_*`, `RESEND_API_KEY`, `TURNSTILE_SECRET_KEY`, `CONTACT_TO_EMAIL`) and the
 compatibility settings (`nodejs_compat`) are in the Pages dashboard. `NEXT_PUBLIC_*` values are baked in at build
@@ -149,7 +159,9 @@ time. The pages that read the database (`/`, `/projects`) render on every reques
 ## Testing
 
 ```bash
-npm test
+npm test           # Vitest (tests/)
+npm run typecheck  # tsc --noEmit
+npm run lint
 ```
 
 Tests focus on:
