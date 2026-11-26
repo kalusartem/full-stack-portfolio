@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "build:pages": "bash scripts/build-pages.sh",
     "deploy:pages": "bash scripts/build-pages.sh && wrangler pages deploy .pages --project-name fullstackportfolio --branch main"
@@ -30,6 +32,7 @@
     "prettier": "3.7.4",
     "tailwindcss": "^4",
     "typescript": "^5",
+    "vitest": "^4.1.12",
     "wrangler": "^4.158.0"
   },
   "engines": {
